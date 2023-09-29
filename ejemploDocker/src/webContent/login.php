@@ -1,13 +1,13 @@
 <?php
 session_start();
 
-$host = 'nombre_del_host';
-$dbname = 'nombre_de_la_base_de_datos';
-$usuario_bd = 'nombre_de_usuario';
-$contrasena_bd = 'contrasena_de_usuario';
+$host = '127.0.0.1';
+$dbname = 'loginweb';
+$usuario_bd = 'userweb';
+$contrasena_bd = 'userWebExtintor';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $usuario_bd, $contrasena_bd);
+    $pdo = new PDO(##motorbdd##);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Error de conexión a la base de datos: " . $e->getMessage());
@@ -15,7 +15,6 @@ try {
 
 $usuario = $_POST['user'];
 $contrasena = $_POST['password'];
-
 $sql = "SELECT * FROM usuarios WHERE usuario = ? AND contrasena = ?";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$usuario, $contrasena]);
@@ -25,6 +24,7 @@ if ($usuarioEncontrado) {
 
     $_SESSION['usuario'] = $usuario;
     header('Location: inicio.php'); 
+    exit();
 } else {
     echo "Credenciales incorrectas. Por favor, intenta de nuevo.";
 }

@@ -110,6 +110,16 @@ void crear_suid();
 void crear_sudo();
 
 /*
+    Elige aleatoriamente un motor de base de datos y asigna usuarios aleatorios.
+*/
+void elegir_bdd(const char *nombreMaquina);
+
+/*
+    crea la vulnerabilidad del login.
+*/
+void crear_vulnerabilidad_login(const char *nombreMaquina);
+
+/*
     Crea las vunerabilidades de elevacion de privilegios.
 */
 void crear_vulnerabilidad_elevacion();
@@ -501,7 +511,6 @@ char *lineaAleatoria(const char *nombreArchivo) {
 
     int lineaAleatoria = rand() % numLineas;
     rewind(archivo);
-
     int lineaActual = 0;
     char *linea = NULL;
     size_t longitud = 0;
@@ -510,7 +519,46 @@ char *lineaAleatoria(const char *nombreArchivo) {
     }
 
     fclose(archivo);
+    size_t longituda = strlen(linea);
+    if (longituda > 1 && linea[longituda - 1] == '\n') {
+        linea[longituda - 2] = '\0';
+        linea[longituda - 1] = '\0';
+    }
     return linea;
+}
+
+void elegir_bdd(const char *nombreMaquina){
+    int numbdd = (rand() % 3) + 1;
+    int numeroUsuarios = 5; //Numero de usaurios a crear
+    char copiarBDD[100];
+    char rutalogin[100];
+    char usuariosAleatorios[500];
+    char rutainstall[100];
+
+    sprintf(copiarBDD,"cp -r ./bddsConf/bdd%d ./dockers/%s/src/scripts",numbdd,nombreMaquina);
+    sprintf(rutalogin, "./dockers/%s/src/webContent/login.php", nombreMaquina);
+    sprintf(rutainstall, "./dockers/%s/src/scripts/install.sh", nombreMaquina);
+    if(!ejecutar_comando_simple(copiarBDD)){
+        printf("ERROR: no se ha podido generar la base de datos");
+        return;
+    }
+    if (numbdd == 1){
+        modificar_linea(rutalogin,"##motorbdd##","\"mysql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd");
+    }else if (numbdd == 2) {
+        modificar_linea(rutalogin,"##motorbdd##","\"pgsql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd");
+    } else {
+        modificar_linea(rutalogin,"##motorbdd##","\"sqlite:./$dbname.db\"");
+    }
+    sprintf(usuariosAleatorios,"('%s', '%s')",lineaAleatoria("./listas/usuarios.txt"),lineaAleatoria("./listas/contrasenas.txt"));
+    for (int i = 0; i < (numeroUsuarios - 1); i++) {
+        sprintf(usuariosAleatorios,"%s,\n('%s', '%s')",usuariosAleatorios,lineaAleatoria("./listas/usuarios.txt"),lineaAleatoria("./listas/contrasenas.txt"));
+    }
+    sprintf(usuariosAleatorios,"%s;",usuariosAleatorios);
+    modificar_linea(rutainstall,"##usuarios##",usuariosAleatorios);
+}
+
+void crear_vulnerabilidad_login(const char *nombreMaquina){
+    return;
 }
 
 void crear_suid(){
@@ -541,12 +589,14 @@ void crear_vulnerabilidad_elevacion(){
 
 void crear_nueva_maquina(const char *nombreMaquina){
     char copiarMaquina[100]; 
-    sprintf(copiarMaquina, "cp -r ./ejemploDocker ./dockers/%s", nombreMaquina);
+    sprintf(copiarMaquina, "cp -r ./ejemploDocker ./dockers/%s", nombreMaquina, nombreMaquina);
     if(ejecutar_comando_simple(copiarMaquina)){
         establecer_puerto(nombreMaquina);
         anadir_flags(nombreMaquina);
         cambiar_estilo(nombreMaquina);
-        //crear_vulnerabilidad_elevacion();
+        elegir_bdd(nombreMaquina);
+        //crear_vulnerabilidad_login(nombreMaquina);
+        //crear_vulnerabilidad_elevacion(nombreMaquina);
     } else {
         printf("La maquina no se ha podido crear.\n");
         cancelar_maquina(false);
@@ -555,11 +605,17 @@ void crear_nueva_maquina(const char *nombreMaquina){
 
 void iniciar_nueva_maquina(){
     printf("Creadndo la nueva maquina...\n");
-    if (ejecutar_comando_simple("cd dockers/altair/ && ./start.sh 1>/dev/null 2/dev/null")){
+    if (ejecutar_comando_simple("cd dockers/altair/ && ./start.sh 1>/dev/null 2>/dev/null")){
         char *puerto = comando_devolver_texto("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");                
-        printf("La maquina esta corriendo en el puerto %s.\n", puerto);
+        if(puerto != NULL){
+            printf("La maquina esta corriendo en el puerto %s.\n", puerto);
+        }else {
+            printf("La maquina no se ha podido ejecutar.\n");
+            cancelar_maquina(false);
+        }
+       
     }else {
-        printf("La maquina no se ha podido crear.\n");
+        printf("La maquina no se ha podido ejecutar.\n");
         cancelar_maquina(false);
     }
 }
