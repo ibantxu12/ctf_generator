@@ -5,94 +5,100 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+
 int puerto = 80;
 char *archConf = "./dockers/altair/conf/flags";
 
 /*
     Muestra la ayuda cuando se ejeccuta el programa con -h
 */
-void mostrar_ayuda();
+void mostrarAyuda();
 
 /*
     Elimina la maquina cuando se ejucata con -c
 */
-void cancelar_maquina(bool);
+void cancelarMaquina(bool);
 
 /*
     Para la maquina si esta corriendo con -s
 */
-void parar_maquina();
+void pararMaquina();
 
 /*
     Ejecuta la maquina si no esta corriendo con -r
 */
-void ejecutar_maquina();
+void ejecutarMaquina();
+
+/*
+    Crea el numero de maquinas que le pase el usuario.
+*/
+void crearVariasMaquinas(int);
 
 /*
     Devuelve las flags y si se han conseguido o no.
 */
-void ver_flags_y_consegidas(char *, char *, bool *, bool *);
+void verFlags(char *, char *, bool *, bool *);
 
 /*
     Muestra por pantalla que flags se han conseguido.
 */
-void mostrar_objetivos();
+void mostrarObjetivos();
 
 /*
     Verifica si la falg que le llega es correcta y la marca como completada en el archivo correspondiente.
 */
-void introduccir_flag(char*);
+void introduccirFlag(char*);
 
 /*
     Ejecuta un comando en el host y devuelve true si ha funcionado con exito.
 */
-bool ejecutar_comando_simple(char*);
+bool ejecutarComando(char*);
 
 /*
     Ejecuta un comando y devuelve su salida.
 */
-char *comando_devolver_texto(char *);
+char *devolverTextoComando(char *);
 
 /*
     Comprueba que el host tenga instalado docker y el usuario tenga los permisos necesarios.
 */
-bool requisitos_correctos();
+bool requisitosCorrectos();
 
 /*
     Comprueba si un comando ejecutado devuelve texto (true) o devuelve una cadena vacia (false).
 */
-bool hay_salida_comando(char*);
+bool haySalidaComando(char*);
 
 /*
     Comprueba si la maquina esta correindo.
 */
-bool maquina_corriendo();
+bool maquinaCorriendo();
 
 /*
     Recive un nombre de archivo, una cadena a cambiar y la cadena que la remplaza.
     Remplaza la cadena a cambiar por la nueva.
 */
-void modificar_linea(const char *, const char *, const char *);
+bool modificarLinea(const char *, const char *, const char *);
 
 /*
     Establece un pureto a la maquina.
 */
-void establecer_puerto(const char *nombreMaquina);
+bool establecerPuerto(const char *nombreMaquina);
 
 /*
     Genera una falg con numeros aleatorios.
 */
-char *generar_flag();
+char *generarFlag();
 
 /*
     Crea las dos claves (user y root) y las añade a la maquina y al archivo de conf.
 */
-void anadir_flags(const char *);
+bool anadirFlags(const char *);
 
 /*
     Cambia la pariencia de la pagina.
 */
-void cambiar_estilo(const char *);
+bool cambiarEstilo(const char *);
 
 /*
     Devuleve una linea aleatoria de un archivo dado.
@@ -100,39 +106,39 @@ void cambiar_estilo(const char *);
 char *lineaAleatoria(const char *);
 
 /*
+    Elige aleatoriamente un motor de base de datos y asigna usuarios aleatorios.
+*/
+bool elegirBdd(const char *nombreMaquina);
+
+/*
     Crea la vulnerablidad con suid.
 */
-void crear_suid();
+void crearSuid();
 
 /*
     Crea la vulnerablidad con sudo.
 */
-void crear_sudo();
-
-/*
-    Elige aleatoriamente un motor de base de datos y asigna usuarios aleatorios.
-*/
-void elegir_bdd(const char *nombreMaquina);
+void crearSudo();
 
 /*
     crea la vulnerabilidad del login.
 */
-void crear_vulnerabilidad_login(const char *nombreMaquina);
+void crearVulnerabilidadLogin(const char *nombreMaquina);
 
 /*
     Crea las vunerabilidades de elevacion de privilegios.
 */
-void crear_vulnerabilidad_elevacion();
+void crearVulnerabilidadElevacion();
 
 /*
     Crea la maquina vulnerable.
 */
-void crear_nueva_maquina(const char *);
+bool crearNuevaMaquina(const char *);
 
 /*
     Ejecuta la nueva maquina.
 */
-void iniciar_nueva_maquina();
+void iniciarNuevaMaquina();
 
 
 
@@ -143,7 +149,7 @@ int main(int argc, char *argv[]) {
 
     if (argc > 3 || (argc == 3 && argv[2][0] == '-')) {
         printf("Error: Se requiere como mucho una opcion.\n");
-        mostrar_ayuda();
+        mostrarAyuda();
         return 1;
     }
     for (int i = 1; i < argc; i++) {
@@ -156,36 +162,48 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            mostrar_ayuda();
+            mostrarAyuda();
             return 0;
         } else if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--flag") == 0) {
             if (i + 1 < argc) {
                 char *flag = argv[i + 1];
-                introduccir_flag(flag);
+                introduccirFlag(flag);
                 return 0;
             } else {
-                mostrar_objetivos();
+                mostrarObjetivos();
                 return 0;
             }
         
         } else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--cancel") == 0) {
-            cancelar_maquina(true);
+            cancelarMaquina(true);
             return 1;
         } else if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--stop") == 0) {
-            parar_maquina();
+            pararMaquina();
             return 1;
         } else if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--run") == 0) {
-            ejecutar_maquina();
+            ejecutarMaquina();
             return 1;
-        } else {
+        } else if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--multi") == 0){
+            if (i + 1 < argc) {
+                crearVariasMaquinas(atoi(argv[i + 1]));
+                return 1;
+            } else {
+                printf("Error: Se esperaba la cantidad de maquina a crear después de %s\n", argv[i]);
+                return 1;
+            }
+        }else {
             printf("Error: Opción no válida: %s\n", argv[i]);
             return 1;
         }
     }
 
-    if(requisitos_correctos() && !maquina_corriendo()){
-        crear_nueva_maquina("altair");
-        iniciar_nueva_maquina();
+    if(requisitosCorrectos() && !maquinaCorriendo()){
+        if(!crearNuevaMaquina("altair")){
+            printf("No se pudo crear la maquina. Deshaciendo... \n");
+            cancelarMaquina(false);
+            return 1;
+        }
+        iniciarNuevaMaquina();
     } else {
         return 1;
     }
@@ -193,18 +211,19 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void mostrar_ayuda() {
-    printf("Uso: mi_programa [OPCION]\n");
+void mostrarAyuda() {
+    printf("Uso: ctf-generator [OPCION]\n");
     printf("Opciones:\n");
-    printf("  -p, --port PUERTO    Especifica el puerto, por defecto 80\n");
-    printf("  -h, --help           Muestra esta ayuda\n");
-    printf("  -f, --flag FLAG      Introducir flag, si no se especifica FLAG las muestra.\n");
-    printf("  -c, --cancel         Canela la maquina 'lo que implica rendirse'\n");
-    printf("  -s, --stop           Para la maquina, pero no la elimina\n");
-    printf("  -r, --run            Ejecuta la maquina en el caso de estar parada\n");
+    printf("  -p, --port PUERTO      Especifica el puerto, por defecto 80\n");
+    printf("  -h, --help             Muestra esta ayuda\n");
+    printf("  -f, --flag FLAG        Introducir flag, si no se especifica FLAG las muestra\n");
+    printf("  -c, --cancel           Canela la maquina 'lo que implica rendirse'\n");
+    printf("  -s, --stop             Para la maquina, pero no la elimina\n");
+    printf("  -r, --run              Ejecuta la maquina en el caso de estar parada\n");
+    printf("  -m, --multi CANTIDAD   Crea el numero de maquinas especificado y las guarda en la carpeta dockers\n");
 }
 
-void cancelar_maquina(bool preguntar){
+void cancelarMaquina(bool preguntar){
     char *respuesta;
     bool continuar;
 
@@ -217,38 +236,55 @@ void cancelar_maquina(bool preguntar){
     }
     if(continuar){
         char * cancelar = "docker stop altair 1>/dev/null 2>/dev/null && docker rm altair && docker rmi altair 1>/dev/null 2>/dev/null";
-        ejecutar_comando_simple("rm -r ./dockers/altair 2>/dev/null");
-        if(ejecutar_comando_simple(cancelar)){
+        ejecutarComando("rm -r ./dockers/altair 2>/dev/null");
+
+        if(ejecutarComando(cancelar) && preguntar){
             printf("La maquina se ha eiminado correctamente.\n");
-        } else {
+        } else if(preguntar){
             printf("La maquina no se ha podido eliminar, pronbablamente no existia.\n");
         }
+        
     } else {
         printf("Abortado\n");
     }
     
 }
 
-void parar_maquina(){
+void pararMaquina(){
     char * parar = "docker stop altair 1>/dev/null 2>/dev/null";
-    if(ejecutar_comando_simple(parar)){
+    if(ejecutarComando(parar)){
         printf("La maquina se ha parado correctamente.\n");
     } else {
         printf("La maquina no se ha podido parar, pronbablamente no existia\n");
     }
 }
 
-void ejecutar_maquina(){
+void ejecutarMaquina(){
     char *ejecutar = "docker start altair 1>/dev/null 2>/dev/null";
-    if(ejecutar_comando_simple(ejecutar)){
-        char *puerto = comando_devolver_texto("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");
+    if(ejecutarComando(ejecutar)){
+        char *puerto = devolverTextoComando("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");
         printf("La maquina esta corriendo en el puerto %s.\n", puerto);
     } else {
         printf("La maquina no se ha podido ejecutar, pronbablamente no existia\n");
     }
 }
 
-void ver_flags_y_consegidas(char *userFlag, char *rootFlag, bool *userFlagConseguida, bool *rootFlagConseguida){
+void crearVariasMaquinas(int cantidadMaquinas){
+    char nombreCarpeta[50];
+
+    for (int i = 1; i <= cantidadMaquinas; i++) {
+        snprintf(nombreCarpeta, sizeof(nombreCarpeta), "mvuln%d", i);
+        if (crearNuevaMaquina(nombreCarpeta)) {
+            printf("Maquina '%s' creada con éxito.\n", nombreCarpeta);
+        }else {
+            printf("No se pudo crear la maquina '%s'. Deshaciendo... \n", nombreCarpeta);
+            cancelarMaquina(false);
+        }
+        
+    }
+}
+
+void verFlags(char *userFlag, char *rootFlag, bool *userFlagConseguida, bool *rootFlagConseguida){
     *userFlagConseguida = false;
     *rootFlagConseguida = false;
     
@@ -277,12 +313,12 @@ void ver_flags_y_consegidas(char *userFlag, char *rootFlag, bool *userFlagConseg
     }
 }
 
-void mostrar_objetivos(){
+void mostrarObjetivos(){
     char userFlag[40];
     char rootFlag[40];
     bool userFlagConseguida;
     bool rootFlagConseguida;
-    ver_flags_y_consegidas(userFlag,rootFlag,&userFlagConseguida,&rootFlagConseguida);
+    verFlags(userFlag,rootFlag,&userFlagConseguida,&rootFlagConseguida);
 
     printf("\nObjetivos: \n");
     printf("Flag de Usuario Conseguida: %s\n", userFlagConseguida ? "Sí" : "No");
@@ -290,36 +326,36 @@ void mostrar_objetivos(){
 
 }
 
-void introduccir_flag(char *flag){
+void introduccirFlag(char *flag){
     char userFlag[40];
     char rootFlag[40];
     bool userFlagConseguida;
     bool rootFlagConseguida;
-    ver_flags_y_consegidas(userFlag,rootFlag,&userFlagConseguida,&rootFlagConseguida);
+    verFlags(userFlag,rootFlag,&userFlagConseguida,&rootFlagConseguida);
     if (userFlagConseguida && rootFlagConseguida){
         printf("Ya has conseguido todas las flags de esta maquina, no hace falta seguir intentandolo.\n");
     } else {
         if (strcmp(userFlag,flag) == 0){
             printf("Enhorabuena!! Has conseguido la flag de User.\n");
             userFlagConseguida = true;
-            modificar_linea(archConf,",un",",us");
+            modificarLinea(archConf,",un",",us");
         } else if (strcmp(rootFlag,flag) == 0) {
             printf("Enhorabuena!! Has conseguido la flag de Root.\n");
             rootFlagConseguida = true;
-            modificar_linea(archConf,",rn",",rs");
+            modificarLinea(archConf,",rn",",rs");
         } else {
             printf("Lamentablemente esto no es una flag valida, sigue intentadolo.\n");
         }
         if (userFlagConseguida && rootFlagConseguida){
             printf("\nMaquina completada!!!!!! Buen trabajo.\n");
-            cancelar_maquina(false);
+            cancelarMaquina(false);
         } else {
-            mostrar_objetivos();
+            mostrarObjetivos();
         }
     }
 }
 
-bool ejecutar_comando_simple(char *comando){
+bool ejecutarComando(char *comando){
     int resultado = system(comando);
 
     if (resultado != 0) {
@@ -331,7 +367,7 @@ bool ejecutar_comando_simple(char *comando){
     printf("El contenedor %s ha sido detenido.\n");
 }
 
-char *comando_devolver_texto(char *comando){
+char *devolverTextoComando(char *comando){
     FILE *fp = popen(comando, "r");
     if (fp == NULL) {
         printf("ERROR: El comando no se ha podido ejecutar correctamente.");
@@ -353,7 +389,7 @@ char *comando_devolver_texto(char *comando){
         return NULL;
     }
 }
-bool requisitos_correctos(){
+bool requisitosCorrectos(){
     int estado;
     char *comando = "docker info 1>/dev/null 2>/dev/null";
     estado = system(comando);
@@ -367,7 +403,7 @@ bool requisitos_correctos(){
     }
 }
 
-bool hay_salida_comando(char *comando){
+bool haySalidaComando(char *comando){
     FILE *fp = popen(comando, "r");
     if (fp == NULL) {
         printf("ERROR: El comando no se ha podido ejecutar correctamente.\n");
@@ -389,17 +425,17 @@ bool hay_salida_comando(char *comando){
     }
 }
 
-bool maquina_corriendo(){
+bool maquinaCorriendo(){
     char *dockerPS = "docker ps | grep altair";
 
-    if(hay_salida_comando(dockerPS)){
-        char *puerto = comando_devolver_texto("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");
+    if(haySalidaComando(dockerPS)){
+        char *puerto = devolverTextoComando("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");
         printf("Ya hay una maquina corriendo incompleta en el puerto %s.\n", puerto);
-        mostrar_objetivos();
+        mostrarObjetivos();
         return true;
     }else {
         char *dockerPSla = "docker ps -la | grep altair";
-        if(hay_salida_comando(dockerPSla)){
+        if(haySalidaComando(dockerPSla)){
             printf ("Hay una maquina incompleta que no esta corriendo.\n");
             printf ("Puede volver a lanzarla con '-r' o cancelarla con '-c'.\n");
             return true;
@@ -409,18 +445,18 @@ bool maquina_corriendo(){
     }
 }
 
-void modificar_linea(const char *archivo, const char *busqueda, const char *reemplazo){
+bool modificarLinea(const char *archivo, const char *busqueda, const char *reemplazo){
     FILE *entrada = fopen(archivo, "r");
     if (entrada == NULL) {
-        printf("ERROR: No se ha podido abrir el archivo en modo lectura\n");
-        return;
+        printf("ERROR: No se ha podido abrir el archivo %s en modo lectura\n",archivo);
+        return false;
     }
 
     FILE *salida = fopen("temp.txt", "w");
     if (salida == NULL) {
         printf("ERROR: No se ha podido abrir el archivo temporal en modo escritura\n");
         fclose(entrada);
-        return;
+        return false;
     }
 
     char linea[1024];
@@ -438,17 +474,18 @@ void modificar_linea(const char *archivo, const char *busqueda, const char *reem
 
     remove(archivo);
     rename("temp.txt", archivo);
+    return true;
 }
 
-void establecer_puerto(const char *nombreMaquina){
+bool establecerPuerto(const char *nombreMaquina){
     char rutaStar[200];
     char puertoc[20];
     sprintf(rutaStar,"./dockers/%s/start.sh",nombreMaquina);
     sprintf(puertoc,"%d",puerto);
-    modificar_linea(rutaStar,"##puerto##",puertoc);
+    return modificarLinea(rutaStar,"##puerto##",puertoc);
 }
 
-char *generar_flag(){
+char *generarFlag(){
     int longitudFlag = 32;
     char *flag = malloc((longitudFlag + 1) * sizeof(char));
     if (flag == NULL) {
@@ -469,29 +506,33 @@ char *generar_flag(){
     return(flag);
 }
 
-void anadir_flags(const char *nombreMaquina){
-    char *flagUser = generar_flag();
-    char *flagRoot = generar_flag();
+bool anadirFlags(const char *nombreMaquina){
+    char *flagUser = generarFlag();
+    char *flagRoot = generarFlag();
     char rutaDockerfile[200];
     char rutaConf[200];
         
     sprintf(rutaDockerfile,"./dockers/%s/Dockerfile",nombreMaquina);
-    modificar_linea(rutaDockerfile,"##rootFlag##",flagRoot);
-    modificar_linea(rutaDockerfile,"##userFlag##",flagUser);
-    sprintf(rutaConf,"echo '%s,un\n%s,rn\n' > ./dockers/%s/conf/flags",flagUser,flagRoot,nombreMaquina);
-    if(!ejecutar_comando_simple(rutaConf)){
+    if (!modificarLinea(rutaDockerfile,"##rootFlag##",flagRoot) || !modificarLinea(rutaDockerfile,"##userFlag##",flagUser)){
         printf("ERROR: Las flags no se han podido añadir. Eliminando la maquina...\n");
-        cancelar_maquina(false);
-        return;
+        cancelarMaquina(false);
+        return false;
     }
+    sprintf(rutaConf,"echo '%s,un\n%s,rn\n' > ./dockers/%s/conf/flags",flagUser,flagRoot,nombreMaquina);
+    if(!ejecutarComando(rutaConf)){
+        printf("ERROR: Las flags no se han podido añadir. Eliminando la maquina...\n");
+        cancelarMaquina(false);
+        return false;
+    }
+    return true;
 }
 
-void cambiar_estilo(const char *nombreMaquina){
+bool cambiarEstilo(const char *nombreMaquina){
     char nombrearchivo[100];
     char numeroestilo[10];
     sprintf(numeroestilo, "%d", (rand() % 5) + 1);
     sprintf(nombrearchivo, "./dockers/%s/src/webContent/index.html",nombreMaquina);
-    modificar_linea(nombrearchivo,"##estilo##",numeroestilo);
+    return modificarLinea(nombrearchivo,"##estilo##",numeroestilo);
 }
 
 char *lineaAleatoria(const char *nombreArchivo) {
@@ -509,7 +550,7 @@ char *lineaAleatoria(const char *nombreArchivo) {
         }
     }
 
-    int lineaAleatoria = rand() % numLineas;
+    int lineaAleatoria = (rand() % numLineas) + 1;
     rewind(archivo);
     int lineaActual = 0;
     char *linea = NULL;
@@ -527,59 +568,64 @@ char *lineaAleatoria(const char *nombreArchivo) {
     return linea;
 }
 
-void elegir_bdd(const char *nombreMaquina){
+bool elegirBdd(const char *nombreMaquina){
     int numbdd = (rand() % 3) + 1;
     int numeroUsuarios = 5; //Numero de usaurios a crear
     char copiarBDD[100];
     char rutalogin[100];
     char usuariosAleatorios[500];
     char rutainstall[100];
-
     sprintf(copiarBDD,"cp -r ./bddsConf/bdd%d ./dockers/%s/src/scripts",numbdd,nombreMaquina);
     sprintf(rutalogin, "./dockers/%s/src/webContent/login.php", nombreMaquina);
     sprintf(rutainstall, "./dockers/%s/src/scripts/install.sh", nombreMaquina);
-    if(!ejecutar_comando_simple(copiarBDD)){
+    if(!ejecutarComando(copiarBDD)){
         printf("ERROR: no se ha podido generar la base de datos");
-        return;
+        return false;
     }
     if (numbdd == 1){
-        modificar_linea(rutalogin,"##motorbdd##","\"mysql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd");
+        if(!modificarLinea(rutalogin,"##motorbdd##","\"mysql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd")){
+            return false;
+        }
     }else if (numbdd == 2) {
-        modificar_linea(rutalogin,"##motorbdd##","\"pgsql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd");
+        if(!modificarLinea(rutalogin,"##motorbdd##","\"pgsql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd")){
+            return false;
+        }
     } else {
-        modificar_linea(rutalogin,"##motorbdd##","\"sqlite:./$dbname.db\"");
+        if(!modificarLinea(rutalogin,"##motorbdd##","\"sqlite:./$dbname.db\"")){
+            return false;
+        }
     }
     sprintf(usuariosAleatorios,"('%s', '%s')",lineaAleatoria("./listas/usuarios.txt"),lineaAleatoria("./listas/contrasenas.txt"));
     for (int i = 0; i < (numeroUsuarios - 1); i++) {
         sprintf(usuariosAleatorios,"%s,\n('%s', '%s')",usuariosAleatorios,lineaAleatoria("./listas/usuarios.txt"),lineaAleatoria("./listas/contrasenas.txt"));
     }
     sprintf(usuariosAleatorios,"%s;",usuariosAleatorios);
-    modificar_linea(rutainstall,"##usuarios##",usuariosAleatorios);
+    return modificarLinea(rutainstall,"##usuarios##",usuariosAleatorios);
 }
 
-void crear_vulnerabilidad_login(const char *nombreMaquina){
+void crearVulnerabilidadLogin(const char *nombreMaquina){
     return;
 }
 
-void crear_suid(){
+void crearSuid(){
     char comandoSuid[100];
     sprintf(comandoSuid,"docker exec -it altair chmod u+s %s",lineaAleatoria("gtfobins/suidRutas.txt"));
-    if(!ejecutar_comando_simple(comandoSuid)){
+    if(!ejecutarComando(comandoSuid)){
         printf("ERROR: no se ha podido generar la vulnerabilidad de escalada.");
         return;
     }
 }
 
-void crear_sudo(){
+void crearSudo(){
     return;
 }
 
-void crear_vulnerabilidad_elevacion(){
+void crearVulnerabilidadElevacion(){
     int tipoVuln = rand() % 2;
     tipoVuln = 0; //eliminar
     if (tipoVuln == 0){
         //Vulnerabilidad con SUID
-        crear_suid();
+        crearSuid();
     }else {
         //Vulnerabilidad con Sudo
         
@@ -587,35 +633,35 @@ void crear_vulnerabilidad_elevacion(){
 }
 
 
-void crear_nueva_maquina(const char *nombreMaquina){
+bool crearNuevaMaquina(const char *nombreMaquina){
     char copiarMaquina[100]; 
     sprintf(copiarMaquina, "cp -r ./ejemploDocker ./dockers/%s", nombreMaquina, nombreMaquina);
-    if(ejecutar_comando_simple(copiarMaquina)){
-        establecer_puerto(nombreMaquina);
-        anadir_flags(nombreMaquina);
-        cambiar_estilo(nombreMaquina);
-        elegir_bdd(nombreMaquina);
-        //crear_vulnerabilidad_login(nombreMaquina);
-        //crear_vulnerabilidad_elevacion(nombreMaquina);
+    if(ejecutarComando(copiarMaquina)){
+
+        if(!establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina)){
+            return false;
+        }
+        //crearVulnerabilidadLogin(nombreMaquina);
+        //crearVulnerabilidadElevacion(nombreMaquina);
+        return true;
     } else {
-        printf("La maquina no se ha podido crear.\n");
-        cancelar_maquina(false);
+        return false;
     }
 }
 
-void iniciar_nueva_maquina(){
+void iniciarNuevaMaquina(){
     printf("Creadndo la nueva maquina...\n");
-    if (ejecutar_comando_simple("cd dockers/altair/ && ./start.sh 1>/dev/null 2>/dev/null")){
-        char *puerto = comando_devolver_texto("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");                
+    if (ejecutarComando("cd dockers/altair/ && ./start.sh 1>/dev/null 2>/dev/null")){
+        char *puerto = devolverTextoComando("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");                
         if(puerto != NULL){
             printf("La maquina esta corriendo en el puerto %s.\n", puerto);
         }else {
             printf("La maquina no se ha podido ejecutar.\n");
-            cancelar_maquina(false);
+            cancelarMaquina(false);
         }
        
     }else {
         printf("La maquina no se ha podido ejecutar.\n");
-        cancelar_maquina(false);
+        cancelarMaquina(false);
     }
 }
