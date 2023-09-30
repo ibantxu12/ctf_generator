@@ -1,4 +1,8 @@
 #!/bin/bash
+
+##elevacion##
+
+
 ## script para instalacion de sqlite
 
 sudo apt -y update
@@ -15,5 +19,6 @@ CREATE TABLE usuarios (
 INSERT INTO usuarios (usuario, contrasena) VALUES
 ##usuarios##
 
+-- relajados --
 
 EOF

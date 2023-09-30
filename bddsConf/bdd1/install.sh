@@ -1,4 +1,7 @@
 #!/bin/bash
+
+##elevacion##
+
 ## script para instalacion de mariaDB
 
 sudo apt -y update
@@ -18,6 +21,8 @@ CREATE TABLE usuarios (
 
 INSERT INTO usuarios (usuario, contrasena) VALUES
 ##usuarios##
+
+-- relajados --
 
 CREATE USER 'userweb'@'localhost' IDENTIFIED BY 'userWebExtintor';
 GRANT SELECT ON loginweb.* TO 'userweb'@'localhost';

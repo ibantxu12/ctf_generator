@@ -113,22 +113,32 @@ bool elegirBdd(const char *nombreMaquina);
 /*
     Crea la vulnerablidad con suid.
 */
-void crearSuid();
+bool crearSuid(const char *);
 
 /*
     Crea la vulnerablidad con sudo.
 */
-void crearSudo();
+bool crearSudo(const char *);
+
+/*
+    Crea la vulnerabilidad con usuario y contraseña relajado.
+*/
+bool usypassRelajado(const char *);
+
+/*
+    Crea la vulnerabilidad con SQL Injection.
+*/
+bool sqlInjection(const char *);
 
 /*
     crea la vulnerabilidad del login.
 */
-void crearVulnerabilidadLogin(const char *nombreMaquina);
+bool crearVulnerabilidadLogin(const char *);
 
 /*
     Crea las vunerabilidades de elevacion de privilegios.
 */
-void crearVulnerabilidadElevacion();
+bool crearVulnerabilidadElevacion(const char *);
 
 /*
     Crea la maquina vulnerable.
@@ -560,12 +570,17 @@ char *lineaAleatoria(const char *nombreArchivo) {
     }
 
     fclose(archivo);
-    size_t longituda = strlen(linea);
-    if (longituda > 1 && linea[longituda - 1] == '\n') {
-        linea[longituda - 2] = '\0';
-        linea[longituda - 1] = '\0';
+    int len = strlen(linea);
+    char *lineanueva = malloc(len);
+    int j = 0;
+    for (int i = 0; i < len; i++) {
+        if (linea[i] != '\n' && linea[i] != '\t' && linea[i] != '\r') {
+            lineanueva[j] = linea[i];
+            j++;
+        }
     }
-    return linea;
+    lineanueva[j] = '\0';
+    return lineanueva;
 }
 
 bool elegirBdd(const char *nombreMaquina){
@@ -603,32 +618,73 @@ bool elegirBdd(const char *nombreMaquina){
     return modificarLinea(rutainstall,"##usuarios##",usuariosAleatorios);
 }
 
-void crearVulnerabilidadLogin(const char *nombreMaquina){
-    return;
+bool usypassRelajado(const char *nombreMaquina){
+    char anadirUsuario[100];
+    char rutainstall[100];
+    sprintf(anadirUsuario,"INSERT INTO usuarios (usuario, contrasena) VALUES %s",lineaAleatoria("./listas/usuarioyPass.txt"));
+    sprintf(rutainstall, "./dockers/%s/src/scripts/install.sh", nombreMaquina);
+    if(!modificarLinea(rutainstall,"-- relajados --",anadirUsuario)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de login.");
+        return false;
+    }
+    return true;
 }
 
-void crearSuid(){
-    char comandoSuid[100];
-    sprintf(comandoSuid,"docker exec -it altair chmod u+s %s",lineaAleatoria("gtfobins/suidRutas.txt"));
-    if(!ejecutarComando(comandoSuid)){
-        printf("ERROR: no se ha podido generar la vulnerabilidad de escalada.");
-        return;
+bool sqlInjection(const char *nombreMaquina){
+    char crearSQLI[100];
+    char rutalogin[100];
+    sprintf(rutalogin, "./dockers/%s/src/webContent/login.php", nombreMaquina);
+    if(!modificarLinea(rutalogin,"##sqlinjectionP##","$sql = \"SELECT * FROM usuarios WHERE usuario = '$usuario' AND contrasena = '$contrasena'\"; /*") || !modificarLinea(rutalogin,"##sqlinjectionF##","*/")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de login.");
+        return false;
+    }
+    return true;
+}
+
+bool crearVulnerabilidadLogin(const char *nombreMaquina){
+    int tipoVuln = rand() % 2;
+    if (tipoVuln == 0){
+        //Vulnerabilidad con usuario y password relajado
+        return usypassRelajado(nombreMaquina);
+    }else {
+        //Vulnerabilidad con sqlinjection
+        return sqlInjection(nombreMaquina);
     }
 }
 
-void crearSudo(){
-    return;
+bool crearSuid(const char *nombreMaquina){
+    char cambiarPermisos[100];
+    char rutainstall[100];
+    char *archivoVuln = lineaAleatoria("./listas/suid.txt");
+    sprintf(cambiarPermisos,"chmod u+s %s && chmod +x %s",archivoVuln,archivoVuln);
+    sprintf(rutainstall, "./dockers/%s/src/scripts/install.sh", nombreMaquina);
+    if(!modificarLinea(rutainstall,"##elevacion##",cambiarPermisos)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de escalada.");
+        return false;
+    }
+    return true;
 }
 
-void crearVulnerabilidadElevacion(){
+bool crearSudo(const char *nombreMaquina){
+    char anadirSudoers[100];
+    char rutainstall[100];
+    sprintf(anadirSudoers,"echo 'ALL ALL=(ALL) NOPASSWD: %s' >> /etc/sudoers",lineaAleatoria("./listas/sudo.txt"));
+    sprintf(rutainstall, "./dockers/%s/src/scripts/install.sh", nombreMaquina);
+    if(!modificarLinea(rutainstall,"##elevacion##",anadirSudoers)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de escalada.");
+        return false;
+    }
+    return true;
+}
+
+bool crearVulnerabilidadElevacion(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
-    tipoVuln = 0; //eliminar
     if (tipoVuln == 0){
         //Vulnerabilidad con SUID
-        crearSuid();
+        return crearSuid(nombreMaquina);
     }else {
         //Vulnerabilidad con Sudo
-        
+        return crearSudo(nombreMaquina);
     }
 }
 
@@ -638,11 +694,10 @@ bool crearNuevaMaquina(const char *nombreMaquina){
     sprintf(copiarMaquina, "cp -r ./ejemploDocker ./dockers/%s", nombreMaquina, nombreMaquina);
     if(ejecutarComando(copiarMaquina)){
 
-        if(!establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina)){
+        if(!establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina)){
             return false;
         }
-        //crearVulnerabilidadLogin(nombreMaquina);
-        //crearVulnerabilidadElevacion(nombreMaquina);
+        crearVulnerabilidadLogin(nombreMaquina);
         return true;
     } else {
         return false;

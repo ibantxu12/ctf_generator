@@ -12,10 +12,12 @@ try {
 } catch (PDOException $e) {
     die("Error de conexión a la base de datos: " . $e->getMessage());
 }
-
+##sqlinjectionP##
 $usuario = $_POST['user'];
 $contrasena = $_POST['password'];
 $sql = "SELECT * FROM usuarios WHERE usuario = ? AND contrasena = ?";
+##sqlinjectionF##
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$usuario, $contrasena]);
 $usuarioEncontrado = $stmt->fetch(PDO::FETCH_ASSOC);

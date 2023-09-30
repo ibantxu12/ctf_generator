@@ -1,4 +1,7 @@
 #!/bin/bash
+
+##elevacion##
+
 ## script para instalacion de postgresql
 
 sudo apt -y update
@@ -19,6 +22,8 @@ CREATE TABLE usuarios (
 
 INSERT INTO usuarios (usuario, contrasena) VALUES
 ##usuarios##
+
+-- relajados --
 
 CREATE USER userweb WITH PASSWORD 'userWebExtintor';
 GRANT CONNECT ON DATABASE loginweb TO userweb;
