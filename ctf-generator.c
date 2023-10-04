@@ -634,7 +634,7 @@ bool sqlInjection(const char *nombreMaquina){
     char crearSQLI[100];
     char rutalogin[100];
     sprintf(rutalogin, "./dockers/%s/src/webContent/login.php", nombreMaquina);
-    if(!modificarLinea(rutalogin,"##sqlinjectionP##","$sql = \"SELECT * FROM usuarios WHERE usuario = '$usuario' AND contrasena = '$contrasena'\"; /*") || !modificarLinea(rutalogin,"##sqlinjectionF##","*/")){
+    if(!modificarLinea(rutalogin,"##sqlinjectionP##","$sql = \"SELECT * FROM usuarios WHERE usuario = '$usuario' AND contrasena = '$contrasena'\"; /*") || !modificarLinea(rutalogin,"##sqlinjectionF##","*/\n$result = $pdo->query($sql);\nif ($result && $result->rowCount() > 0) {")){
         printf("ERROR: no se ha podido generar la vulnerabilidad de login.");
         return false;
     }
