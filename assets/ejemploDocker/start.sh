@@ -1,6 +1,6 @@
 #!/bin/bash
-CONTAINER_NAME="altair"
-IMAGE_NAME="altair"
+IMAGE_NAME=##nombre##
+PORT=${1:-##puerto##}  # Lee el primer argumento como puerto, o usa 80 por defecto si no se proporciona ninguno.
 
 if [ "$(docker images -q $IMAGE_NAME)" ]; then
     echo "La imagen $IMAGE_NAME ya existe."
@@ -9,9 +9,9 @@ else
     echo "La imagen $IMAGE_NAME se ha construido."
 fi
 
-if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
-    echo "El contenedor $CONTAINER_NAME ya está en ejecución."
+if [ "$(docker ps -q -f name=$IMAGE_NAME)" ]; then
+    echo "El contenedor $IMAGE_NAME ya está en ejecución."
 else
-    docker run -d --name $CONTAINER_NAME -p ##puerto##:80 $IMAGE_NAME
-    echo "El contenedor $CONTAINER_NAME se ha iniciado."
+    docker run -d --name $IMAGE_NAME -p $PORT:80 $IMAGE_NAME
+    echo "El contenedor $IMAGE_NAME se ha iniciado en el puerto $PORT."
 fi

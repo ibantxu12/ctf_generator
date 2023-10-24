@@ -31,7 +31,6 @@
 /usr/bin/install
 /usr/bin/ionice
 /usr/bin/join
-/usr/bin/ld.so
 /usr/bin/mawk
 /usr/bin/mawk
 /usr/bin/more

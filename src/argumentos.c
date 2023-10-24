@@ -147,6 +147,7 @@ void crearVariasMaquinas(int cantidadMaquinas){
     char nombreCarpeta[50];
 
     for (int i = 1; i <= cantidadMaquinas; i++) {
+        puerto = 80 + i;
         snprintf(nombreCarpeta, sizeof(nombreCarpeta), "mvuln%d", i);
         if (crearNuevaMaquina(nombreCarpeta)) {
             printf("Maquina '%s' creada con éxito.\n", nombreCarpeta);

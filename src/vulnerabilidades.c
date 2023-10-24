@@ -9,12 +9,12 @@ extern char *rutaDockers;
 extern char *rutaListas;
 
 bool crearSuid(const char *nombreMaquina){
-    char cambiarPermisos[100];
+    char cambiarPermisos[500];
     char rutainstall[100];
     char listaSuid[100];
     sprintf(listaSuid,"%ssuid.txt",rutaListas);
     char *archivoVuln = lineaAleatoria(listaSuid);
-    sprintf(cambiarPermisos,"chmod u+s %s && chmod +x %s",archivoVuln,archivoVuln);
+    sprintf(cambiarPermisos,"groupadd login && usermod -a -G login www-data && chgrp login %s && chmod u+s %s && chmod g+x %s && chmod o-x %s",archivoVuln,archivoVuln,archivoVuln,archivoVuln);
     sprintf(rutainstall, "%s%s/src/scripts/install.sh",rutaDockers,nombreMaquina);
     if(!modificarLinea(rutainstall,"##elevacion##",cambiarPermisos)){
         printf("ERROR: no se ha podido generar la vulnerabilidad de escalada.");
@@ -54,7 +54,7 @@ bool usypassRelajado(const char *nombreMaquina){
 bool sqlInjection(const char *nombreMaquina){
     char rutalogin[100];
     sprintf(rutalogin, "%s%s/src/webContent/login.php",rutaDockers, nombreMaquina);
-    if(!modificarLinea(rutalogin,"##sqlinjectionP##","$sql = \"SELECT * FROM usuarios WHERE usuario = '$usuario' AND contrasena = '$contrasena'\"; /*") || !modificarLinea(rutalogin,"##sqlinjectionF##","*/\n$result = $pdo->query($sql);\nif ($result && $result->rowCount() > 0) {")){
+    if(!modificarLinea(rutalogin,"##sqlinjectionP##","$sql = \"SELECT * FROM usuarios WHERE usuario = '$usuario' AND contrasena = '$contrasena'\"; /*") || !modificarLinea(rutalogin,"##sqlinjectionF##","*/\n$result = $pdo->query($sql);\nif ($result && $result->fetchColumn() > 0) {")){
         printf("ERROR: no se ha podido generar la vulnerabilidad de login.");
         return false;
     }

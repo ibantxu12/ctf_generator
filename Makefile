@@ -11,7 +11,7 @@ CFLAGS = -Wall -Wextra
 DEBUG_CFLAGS = -g
 
 # Archivos fuente
-SRCS = src/main.c src/herramintas.c src/argumentos.c src/maquina.c src/vulnerabilidades.c
+SRCS = src/main.c src/herramientas.c src/argumentos.c src/maquina.c src/vulnerabilidades.c
 
 # Directorio para archivos objeto
 OBJ_DIR = obj

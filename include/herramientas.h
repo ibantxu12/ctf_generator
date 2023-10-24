@@ -36,3 +36,18 @@ char *lineaAleatoria(const char *);
     Devuelve las flags y si se han conseguido o no.
 */
 void verFlags(char *, char *, bool *, bool *);
+
+/*
+    Carga datos para los usuarios.
+*/
+bool cargarDatosDesdeArchivo(const char *);
+
+/*
+    Obtiene categoria aleatorioa.
+*/
+char* obtenerCategoriaAleatoria();
+
+/*
+    Obtiene dato aleatorio de una categoria especificada.
+*/
+char* obtenerDatoAleatorioDeCategoria(const char *);

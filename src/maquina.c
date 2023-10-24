@@ -18,7 +18,7 @@ bool crearNuevaMaquina(const char *nombreMaquina){
     sprintf(copiarMaquina, "cp -r %s %s%s", rutaEjemploDocker, rutaDockers, nombreMaquina);
     if(ejecutarComando(copiarMaquina)){
 
-        if(!establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina)){
+        if(!establecerNombre(nombreMaquina) || !establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina)){
             return false;
         }
         crearVulnerabilidadLogin(nombreMaquina);
@@ -55,6 +55,14 @@ bool establecerPuerto(const char *nombreMaquina){
     return modificarLinea(rutaStar,"##puerto##",puertoc);
 }
 
+bool establecerNombre(const char *nombreMaquina){
+    char rutaStar[200];
+    char rutaStop[200];
+    sprintf(rutaStar,"%s%s/start.sh", rutaDockers,nombreMaquina);
+    sprintf(rutaStop,"%s%s/stop.sh", rutaDockers,nombreMaquina);
+    return (modificarLinea(rutaStar,"##nombre##",nombreMaquina) && modificarLinea(rutaStop,"##nombre##",nombreMaquina)) ;
+}
+
 bool anadirFlags(const char *nombreMaquina){
     char *flagUser = generarFlag();
     char *flagRoot = generarFlag();
@@ -84,21 +92,135 @@ bool cambiarEstilo(const char *nombreMaquina){
     return modificarLinea(nombrearchivo,"##estilo##",numeroestilo);
 }
 
-bool elegirBdd(const char *nombreMaquina){
-    int numbdd = (rand() % 3) + 1;
-    int numeroUsuarios = 5; //Numero de usaurios a crear
-    int MAX_BUFFER_SIZE = 1000;
-    char copiarBDD[100];
-    char rutalogin[100];
-    char rutainstall[100];
+bool crearUsuarios(const char *rutainstall,const char *nuevoDato,const char *parteID){
+    int MAX_BUFFER_SIZE = 2000;
+    char linea[300];
     char listaUsuarios[100];
     char listaContrasenas[100];
-
-    char usuariosAleatorios[MAX_BUFFER_SIZE];
-    char tempBuffer[MAX_BUFFER_SIZE];
+    char listaDatos[100];
+    char insert[MAX_BUFFER_SIZE];
+    int numeroDatos = (rand() % 8) + 2;
+    int posicionUsuario = (rand() % numeroDatos);
+    int posicionContrasena = (rand() % numeroDatos);
+    if (posicionUsuario == posicionContrasena){
+        posicionContrasena = posicionUsuario+1;
+        if (posicionContrasena >= numeroDatos){
+            posicionContrasena = posicionUsuario-1;
+        }
+    }
+    int numeroUsuarios = (rand() % 8) + 2;
+    char *categorias[numeroDatos];
 
     sprintf(listaUsuarios,"%susuarios.txt",rutaListas);
     sprintf(listaContrasenas,"%scontrasenas.txt",rutaListas);
+    sprintf(listaDatos,"%sdatos.txt",rutaListas);
+
+    cargarDatosDesdeArchivo(listaDatos);
+    sprintf(linea,"echo 'CREATE TABLE usuarios (' >> %s",rutainstall);
+    ejecutarComando(linea);
+    sprintf(linea,"echo '\tid %s,' >> %s",parteID,rutainstall);
+    ejecutarComando(linea);
+
+    for(int i = 0;i < numeroDatos-1; i++){
+        if (i == posicionUsuario){
+            sprintf(linea,"echo '\tusuario %s NOT NULL,' >> %s",nuevoDato,rutainstall);
+            categorias[i] = "usuario";
+        }else if (i == posicionContrasena){
+            sprintf(linea,"echo '\tcontrasena %s NOT NULL,' >> %s",nuevoDato,rutainstall);
+            categorias[i] = "contrasena";
+        }else{
+            categorias[i] = obtenerCategoriaAleatoria();
+            sprintf(linea,"echo '\t%s %s,' >> %s",categorias[i],nuevoDato,rutainstall);
+        }
+        ejecutarComando(linea);
+    }
+    if (numeroDatos-1 == posicionUsuario){
+        sprintf(linea,"echo '\tusuario %s NOT NULL' >> %s",nuevoDato,rutainstall);
+        categorias[numeroDatos-1] = "usuario";
+    }else if (numeroDatos-1 == posicionContrasena){
+        sprintf(linea,"echo '\tcontrasena %s NOT NULL' >> %s",nuevoDato,rutainstall);
+        categorias[numeroDatos-1] = "contrasena";
+    }else{
+        categorias[numeroDatos-1] = obtenerCategoriaAleatoria();
+        sprintf(linea,"echo '\t%s %s' >> %s",categorias[numeroDatos-1],nuevoDato,rutainstall);
+    }
+    ejecutarComando(linea);
+    sprintf(linea,"echo ');\n' >> %s",rutainstall);
+    ejecutarComando(linea);
+
+    strcpy(insert,"INSERT INTO usuarios (");
+    int numCategorias = sizeof(categorias) / sizeof(categorias[0]);
+    for (int i = 0; i < numCategorias; i++) {
+        if (i == 0) {
+            strcat(insert, categorias[i]);
+        } else {
+            strcat(insert, ", ");
+            strcat(insert, categorias[i]);
+        }
+    }
+    strcat(insert,") VALUES");
+    sprintf(linea,"echo '%s' >> %s",insert,rutainstall);
+    ejecutarComando(linea);
+
+    cargarDatosDesdeArchivo(listaDatos);
+    for (int i = 0; i < numeroUsuarios; i++) {
+        strcpy(insert,"(\'");
+        for (int j = 0; j < numCategorias; j++) {
+            if (j != 0){
+                strcat(insert,"\', \'");
+            }
+            if (j == posicionUsuario){
+                strcat(insert,lineaAleatoria(listaUsuarios));
+            }else if (j == posicionContrasena){
+                strcat(insert,lineaAleatoria(listaContrasenas));
+            }else{
+                strcat(insert,obtenerDatoAleatorioDeCategoria(categorias[j]));
+            }
+        }
+        if (i == numeroUsuarios-1){
+            strcat(insert,"\');\n");
+        } else {
+            strcat(insert,"\'),");
+        }
+        sprintf(linea,"echo \"%s\" >> %s",insert,rutainstall);
+        ejecutarComando(linea);
+    }
+
+    sprintf(linea,"echo '-- relajados --\n-- postgres --\nEOF' >> %s",rutainstall);
+    ejecutarComando(linea);
+    return true;
+
+}
+
+
+bool configurarMYSQL(const char *rutalogin,const char *rutainstall){
+    if(!modificarLinea(rutalogin,"##motorbdd##","\"mysql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd")){
+        return false;
+    }
+    return crearUsuarios(rutainstall,"VARCHAR(255)","INT AUTO_INCREMENT PRIMARY KEY");
+}
+
+bool configurarPGSQL(const char *rutalogin,const char *rutainstall){
+    if(!modificarLinea(rutalogin,"##motorbdd##","\"pgsql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd") || !crearUsuarios(rutainstall,"VARCHAR(255)","serial PRIMARY KEY")){
+        return false;
+    }
+    return modificarLinea(rutainstall,"-- postgres --","GRANT SELECT ON usuarios TO userweb; ");
+}
+
+bool configurarSQLite(const char *rutalogin,const char *rutainstall){
+    if(!modificarLinea(rutalogin,"##motorbdd##","\"sqlite:./$dbname.db\"")){
+        return false;
+    }
+    return crearUsuarios(rutainstall,"TEXT","INTEGER PRIMARY KEY");
+}
+
+bool elegirBdd(const char *nombreMaquina){
+    int numbdd = (rand() % 3) + 1;
+    char copiarBDD[100];
+    char rutalogin[100];
+    char rutainstall[100];
+
+
     sprintf(copiarBDD,"cp -r %sbdd%d %s%s/src/scripts",rutaBdds,numbdd,rutaDockers,nombreMaquina);
     sprintf(rutalogin, "%s%s/src/webContent/login.php",rutaDockers, nombreMaquina);
     sprintf(rutainstall, "%s%s/src/scripts/install.sh",rutaDockers, nombreMaquina);
@@ -108,26 +230,10 @@ bool elegirBdd(const char *nombreMaquina){
         return false;
     }
     if (numbdd == 1){
-        if(!modificarLinea(rutalogin,"##motorbdd##","\"mysql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd")){
-            return false;
-        }
+        return configurarMYSQL(rutalogin,rutainstall);
     }else if (numbdd == 2) {
-        if(!modificarLinea(rutalogin,"##motorbdd##","\"pgsql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd")){
-            return false;
-        }
+        return configurarPGSQL(rutalogin,rutainstall);
     } else {
-        if(!modificarLinea(rutalogin,"##motorbdd##","\"sqlite:./$dbname.db\"")){
-            return false;
-        }
+        return configurarSQLite(rutalogin,rutainstall);
     }
-
-    // tempBuffer[0] = '\0';
-    snprintf(tempBuffer,MAX_BUFFER_SIZE,"('%s', '%s')",lineaAleatoria(listaUsuarios),lineaAleatoria(listaContrasenas));
-    for (int i = 0; i < (numeroUsuarios - 1); i++) {
-        char temp[MAX_BUFFER_SIZE];
-        snprintf(temp,MAX_BUFFER_SIZE,",\n('%s', '%s')",lineaAleatoria(listaUsuarios),lineaAleatoria(listaContrasenas));
-        strncat(tempBuffer, temp, MAX_BUFFER_SIZE - strlen(tempBuffer) - 5);
-    }
-    snprintf(usuariosAleatorios,MAX_BUFFER_SIZE,"%s;",tempBuffer);
-    return modificarLinea(rutainstall,"##usuarios##",usuariosAleatorios);
 }

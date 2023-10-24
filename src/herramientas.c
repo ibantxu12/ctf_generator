@@ -6,6 +6,13 @@
 #include "../include/herramientas.h"
 extern char *archConf;
 
+#define MAX_CATEGORIES 50
+#define MAX_DATA_PER_CATEGORY 50
+#define MAX_DATA_LENGTH 256
+char categorias[MAX_CATEGORIES][MAX_DATA_PER_CATEGORY][MAX_DATA_LENGTH];
+int numDatosPorCategoria[MAX_CATEGORIES] = {0};
+int categoriasTotales;
+
 
 bool ejecutarComando(char *comando){
     int resultado = system(comando);
@@ -35,7 +42,7 @@ char *devolverTextoComando(char *comando){
         return strdup(buffer);
     } else {
         pclose(fp);
-        perror("ERROR: No se ha podido leer la salida del comando");
+        printf("ERROR: No se ha podido leer la salida del comando");
         return NULL;
     }
 }
@@ -180,4 +187,70 @@ void verFlags(char *userFlag, char *rootFlag, bool *userFlagConseguida, bool *ro
         printf("ERROR: No se a podido abrir el archivo para lectura.\n");
         return;
     }
+}
+
+bool cargarDatosDesdeArchivo(const char *nombreArchivo) {
+    FILE *archivo = fopen(nombreArchivo, "r");
+    if (archivo == NULL) {
+        printf("ERROR: Error al abrir el archivo\n");
+        return false;
+    }
+
+    char linea[MAX_DATA_LENGTH];
+    int i = 0;
+    while (fgets(linea, sizeof(linea), archivo) != NULL) {
+
+        char *cierreLlave = strchr(linea, '}');
+        if (cierreLlave != NULL) {
+            *cierreLlave = '\0';
+        }
+
+        if (linea[0] != '\0') {
+            categorias[i][0][0] = '\0';
+            
+            char *categoria = strtok(linea, "{");
+            strcpy(categorias[i][0], categoria);
+            if (categoria != NULL) {
+                numDatosPorCategoria[i]++;
+                char *datos = strtok(NULL, ",");
+                while (datos != NULL) {
+                    if (numDatosPorCategoria[i] < MAX_DATA_PER_CATEGORY) {
+                        strcpy(categorias[i][numDatosPorCategoria[i]], datos);
+                        numDatosPorCategoria[i]++;
+                    }
+                    datos = strtok(NULL, ",");
+                }
+                
+            }
+            i++;
+        }
+    }
+    categoriasTotales = i;
+    fclose(archivo);
+    return true;
+}
+
+char* obtenerCategoriaAleatoria() {
+    int indiceCategoria = rand() % categoriasTotales;
+    char *categoria = malloc(256);
+
+    strcpy(categoria,categorias[indiceCategoria][0]);
+    for (int i = indiceCategoria; i < categoriasTotales - 1; i++) {
+        strcpy(categorias[i][0], categorias[i + 1][0]);
+    }
+
+    categoriasTotales--;
+
+    return categoria;
+}
+
+
+char* obtenerDatoAleatorioDeCategoria(const char *categoria) {
+    for (int i = 0; i < MAX_CATEGORIES; i++) {
+        if (strcmp(categoria, categorias[i][0]) == 0) {
+            int indiceDato = (rand() % (numDatosPorCategoria[i]-1))+1;
+            return categorias[i][indiceDato];
+        }
+    }
+    return "Categoría no encontrada";
 }

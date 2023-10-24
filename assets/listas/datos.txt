@@ -1,0 +1,15 @@
+telefono{689132330,657121265,698153440,672349812,634287631,622394816,611223344,600112233,689009988,677665544}
+direccion{pamplona,madrid,barcelona,oviedo,valencia,sevilla,granada,bilbao,alicante,malaga}
+edad{28,35,42,29,53,40,24,31,47,39}
+email{juan@example.com,maria@example.com,luis@example.com,ana@example.com,carlos@example.com,laura@example.com,pedro@example.com,sara@example.com,david@example.com,elena@example.com}
+trabajo{ingeniero,abogado,profesor,medico,arquitecto,programador,disenador,contable,electricista,cocinero}
+hobby{futbol,pintura,musica,cine,ciclismo,lectura,tenis,jardineria,viajes,ajedrez}
+ciudad{nueva york,londres,paris,roma,berlin,amsterdam,praga,vienna,montreal,sydney}
+estado_civil{soltero,casado,divorciado,viudo,comprometido}
+nacionalidad{espanol,frances,aleman,italiano,ingles,holandes,checho,austriaco,canadiense,australiano}
+hijos{0,1,2,3,4,5,6,7,8,9}
+ingresos_anuales{25000,35000,45000,55000,65000,75000,85000,95000,105000,115000}
+nivel_educativo{bachillerato,diploma,licenciatura,master,doctorado}
+idiomas{espanol,ingles,frances,aleman,italiano,holandes,portugues,ruso,chino,japones}
+deporte{futbol,baloncesto,tenis,golf,natacion,atletismo,ciclismo,voleibol,padel,escalada}
+musica{rock,pop,hip-hop,electronica,clásica,jazz,reggae,rap,indie,folk}
