@@ -82,3 +82,14 @@ bool crearVulnerabilidadElevacion(const char *nombreMaquina){
         return crearSudo(nombreMaquina);
     }
 }
+
+bool crearVulnerabilidadEjecucion(const char *nombreMaquina){
+    int tipoVuln = rand() % 2;
+    if (tipoVuln == 0){
+        //Vulnerabilidad con SUID
+        return crearSuid(nombreMaquina);
+    }else {
+        //Vulnerabilidad con Sudo
+        return crearSudo(nombreMaquina);
+    }
+}

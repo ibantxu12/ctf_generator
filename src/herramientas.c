@@ -27,7 +27,7 @@ bool ejecutarComando(char *comando){
 char *devolverTextoComando(char *comando){
     FILE *fp = popen(comando, "r");
     if (fp == NULL) {
-        printf("ERROR: El comando no se ha podido ejecutar correctamente.");
+        printf("ERROR: El comando no se ha podido ejecutar correctamente.\n");
         return NULL;
     }
 
@@ -42,7 +42,7 @@ char *devolverTextoComando(char *comando){
         return strdup(buffer);
     } else {
         pclose(fp);
-        printf("ERROR: No se ha podido leer la salida del comando");
+        printf("ERROR: No se ha podido leer la salida del comando.\n");
         return NULL;
     }
 }

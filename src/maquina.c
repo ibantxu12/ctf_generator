@@ -193,6 +193,8 @@ bool crearUsuarios(const char *rutainstall,const char *nuevoDato,const char *par
 }
 
 
+
+// Bases de datos
 bool configurarMYSQL(const char *rutalogin,const char *rutainstall){
     if(!modificarLinea(rutalogin,"##motorbdd##","\"mysql:host=$host;dbname=$dbname\", $usuario_bd, $contrasena_bd")){
         return false;
@@ -237,3 +239,4 @@ bool elegirBdd(const char *nombreMaquina){
         return configurarSQLite(rutalogin,rutainstall);
     }
 }
+// Fin bases de datos
