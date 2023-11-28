@@ -1,0 +1,6 @@
+la consulta de SQL del login está programada sin “prepared statment” y el formulario no impide la introducción de caracteres extraños,
+por lo que podemos introducir un texto para que la respuesta sea siempre cierta. Por ejemplo, podemos introducir “a' or 1=1 --“
+esto cierra el nombre de usuario después de la “a” y añade que el 1 sea igual a 1, siempre se cumplirá.
+ Por último, añade “--“ para que no de error con el resto de los caracteres. De contraseña se puede introducir cualquier carácter.
+
+Habremos iniciado sesión con un usuario inventado, pero tendremos acceso al contenido de la web.

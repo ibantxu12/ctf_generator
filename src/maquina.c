@@ -12,16 +12,17 @@ extern char *rutaDockers;
 extern char *rutaEjemploDocker;
 extern char *rutaBdds;
 extern char *rutaListas;
+extern int puerto;
 
 bool crearNuevaMaquina(const char *nombreMaquina){
     char copiarMaquina[100]; 
     sprintf(copiarMaquina, "cp -r %s %s%s", rutaEjemploDocker, rutaDockers, nombreMaquina);
     if(ejecutarComando(copiarMaquina)){
 
-        if(!establecerNombre(nombreMaquina) || !establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina)){
+        if(!establecerNombre(nombreMaquina) || !establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina) || !crearVulnerabilidadLogin(nombreMaquina)){
             return false;
         }
-        crearVulnerabilidadLogin(nombreMaquina);
+        crearEstructuraInicio(nombreMaquina);
         return true;
     } else {
         return false;
@@ -189,9 +190,97 @@ bool crearUsuarios(const char *rutainstall,const char *nuevoDato,const char *par
     sprintf(linea,"echo '-- relajados --\n-- postgres --\nEOF' >> %s",rutainstall);
     ejecutarComando(linea);
     return true;
-
 }
 
+// Estructura inicio
+
+bool generarEncabezado(const char *nombreMaquina){
+    char listaTitulos[100];
+    char rutaInicio[300];
+    char encabezado[500];
+    int numeroImagen = (rand() % 9) + 1;
+    sprintf(listaTitulos,"%stitulos.txt",rutaListas);
+
+    sprintf(encabezado,"<h1>%s</h1>\n", lineaAleatoria(listaTitulos));
+    sprintf(encabezado, "%s \t\t<img src='img/l%d.png' alt='Imagen Aleatoria'>\n", encabezado, numeroImagen);
+
+    sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);
+    return (modificarLinea(rutaInicio,"<!--encabezado-->",encabezado));
+}
+
+bool generarMenu(const char *nombreMaquina){
+    char listaMenu[100];
+    char rutaInicio[300];
+    char menu[500];
+    int numeroOpciones = (rand() % 4) + 2;
+    sprintf(listaMenu,"%smenu.txt",rutaListas);
+
+    sprintf(menu,"<ul>\n");
+    sprintf(menu,"%s\t\t\t<li><a href='#'>Inicio</a></li>\n",menu);
+    for (int i = 0; i < numeroOpciones; i++) {
+        sprintf(menu,"%s\t\t\t<li><a href='#'>%s</a></li>\n",menu,lineaAleatoria(listaMenu));
+    }
+    sprintf(menu,"%s\t\t</ul>\n",menu);
+
+    
+    sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);
+    return (modificarLinea(rutaInicio,"<!--menu-->",menu));
+}
+
+bool generarContenido(const char *nombreMaquina){
+    char texto[3000];
+    char listaFrases[100];
+    char rutaInicio[300];
+    int numeroParrafos = (rand() % 5) + 3;
+    int numeroFrases;
+    sprintf(listaFrases,"%sfrases.txt",rutaListas);
+    sprintf(texto,"<p>");
+    for (int i = 0; i < numeroParrafos; i++) {
+        numeroFrases = (rand() % 7) + 5;
+        for (int j = 0; j < numeroFrases; j++) {
+            sprintf(texto,"%s %s",texto,lineaAleatoria(listaFrases));
+        }
+        sprintf(texto,"%s <br><br>",texto);
+    }
+    sprintf(texto,"%s </p>",texto);
+    sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);
+    return (modificarLinea(rutaInicio,"<!--contenido-->",texto));
+}
+
+bool generarPie(const char *nombreMaquina){
+    char listaPie[100];
+    char rutaInicio[300];
+    char pie[500];
+    int numeroOpciones = (rand() % 4) + 2;
+    sprintf(listaPie,"%spie.txt",rutaListas);
+
+    sprintf(pie,"<p>\n");
+    for (int i = 0; i < numeroOpciones; i++) {
+        sprintf(pie,"%s\t\t\t<br><a href='#'>%s</a>\n",pie,lineaAleatoria(listaPie));
+    }
+    sprintf(pie,"%s\t\t</p>\n",pie);
+
+    
+    sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);
+    return (modificarLinea(rutaInicio,"<!--pie-->",pie));
+}
+
+bool cambiarEstiloInicio(const char *nombreMaquina){
+    char nombrearchivo[100];
+    char numeroestilo[10];
+    sprintf(numeroestilo, "%d", (rand() % 5) + 1);
+    sprintf(nombrearchivo, "%s%s/src/webContent/inicio.php",rutaDockers,nombreMaquina);
+    return modificarLinea(nombrearchivo,"##estilo##",numeroestilo);
+}
+
+bool crearEstructuraInicio(const char *nombreMaquina){
+    if(!generarEncabezado(nombreMaquina) || !generarMenu(nombreMaquina) || !generarContenido(nombreMaquina) || !generarPie(nombreMaquina) || !cambiarEstiloInicio(nombreMaquina)){
+        return false;
+    }
+    return true;
+}
+
+// Fin estructura inicio
 
 
 // Bases de datos

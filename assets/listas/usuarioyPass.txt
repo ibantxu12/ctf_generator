@@ -2,7 +2,7 @@
 ('root', 'root');
 ('root', 'chippc');
 ('admin', 'admin');
-('root', '');
+('root', 'root');
 ('root', 'nagiosxi');
 ('root', 'usbw');
 ('cloudera', 'cloudera');

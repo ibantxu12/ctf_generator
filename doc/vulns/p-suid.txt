@@ -1,0 +1,4 @@
+Ejecutando el comando “find / -perm /6000 2>/dev/null” nos aparecerá una lista de los archivos que tienen la caracterisitica SUID.
+Uno de estos será vulnerable, habrá que buscar cual está en la lista de “GTFOBins” (https://gtfobins.github.io/).
+
+Para explotarlo habrá que seguir los datos de la página de “GTFOBins” para cada caso.
