@@ -7,6 +7,7 @@
 
 extern char *rutaDockers;
 extern char *rutaListas;
+extern char *rutaVulnsWriteUp;
 
 bool crearSuid(const char *nombreMaquina){
     char cambiarPermisos[500];
@@ -63,17 +64,35 @@ bool sqlInjection(const char *nombreMaquina){
 
 bool crearVulnerabilidadLogin(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
+    nuevaLineaEnWriteUp("1. Vulnerabilidad en el login: \n\n",nombreMaquina);
     if (tipoVuln == 0){
         //Vulnerabilidad con usuario y password relajado
+        nuevaVulnEnWriteUp("l-relajados",nombreMaquina);
         return usypassRelajado(nombreMaquina);
     }else {
         //Vulnerabilidad con sqlinjection
+        nuevaVulnEnWriteUp("l-sqli",nombreMaquina);
         return sqlInjection(nombreMaquina);
     }
 }
 
 bool crearVulnerabilidadElevacion(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
+    nuevaLineaEnWriteUp("\n\n3. Vulnerabilidad para la elevación: \n\n",nombreMaquina);
+    if (tipoVuln == 0){
+        //Vulnerabilidad con SUID
+        nuevaVulnEnWriteUp("p-suid",nombreMaquina);
+        return crearSuid(nombreMaquina);
+    }else {
+        //Vulnerabilidad con Sudo
+        nuevaVulnEnWriteUp("p-sudo",nombreMaquina);
+        return crearSudo(nombreMaquina);
+    }
+}
+
+bool crearVulnerabilidadEjecucion(const char *nombreMaquina){
+    int tipoVuln = rand() % 2;
+    nuevaLineaEnWriteUp("\n\n2. Vulnerabilidad de ejecución de comandos: \n\n",nombreMaquina);
     if (tipoVuln == 0){
         //Vulnerabilidad con SUID
         return crearSuid(nombreMaquina);
@@ -83,13 +102,53 @@ bool crearVulnerabilidadElevacion(const char *nombreMaquina){
     }
 }
 
-bool crearVulnerabilidadEjecucion(const char *nombreMaquina){
-    int tipoVuln = rand() % 2;
-    if (tipoVuln == 0){
-        //Vulnerabilidad con SUID
-        return crearSuid(nombreMaquina);
-    }else {
-        //Vulnerabilidad con Sudo
-        return crearSudo(nombreMaquina);
+//Crear write-Up
+
+bool nuevaLineaEnWriteUp(const char* linea, const char *nombreMaquina) {
+
+    char rutaWrite[100];
+    sprintf(rutaWrite, "%s%s/write-up.txt", rutaDockers, nombreMaquina);
+
+    FILE* archivo = fopen(rutaWrite, "a");
+    if (archivo == NULL) {
+        printf("ERROR: No se pudo abrir el archivo de los write-ups.\n");
+        return false;
     }
+
+    fprintf(archivo, linea);
+    fclose(archivo);
+    return true;
 }
+
+bool nuevaVulnEnWriteUp(const char* nombreVuln, const char *nombreMaquina) {
+
+    char rutaWrite[100];
+    char rutaVuln[100];
+    sprintf(rutaWrite, "%s%s/write-up.txt", rutaDockers, nombreMaquina);
+
+    FILE* archivo = fopen(rutaWrite, "a");
+    if (archivo == NULL) {
+        printf("ERROR: No se pudo abrir el archivo de los write-ups.\n");
+        return false;
+    }
+
+    sprintf(rutaVuln, "%s%s.txt", rutaVulnsWriteUp, nombreVuln);
+
+    FILE* archivoEntrada = fopen(rutaVuln, "r");
+    if (archivoEntrada == NULL) {
+        printf("ERROR: No se pudo abrir el archivo con la explicacion de la vulnerabilidad.\n");
+        fclose(archivo);
+        return false;
+    }
+
+    char buffer[1000];
+    while (fgets(buffer, sizeof(buffer), archivoEntrada) != NULL) {
+        fprintf(archivo, "%s", buffer);
+    } 
+
+    fclose(archivoEntrada);
+    fclose(archivo);
+    return true;
+}
+
+//Fin crear write-Up

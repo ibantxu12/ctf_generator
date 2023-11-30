@@ -19,7 +19,7 @@ bool crearNuevaMaquina(const char *nombreMaquina){
     sprintf(copiarMaquina, "cp -r %s %s%s", rutaEjemploDocker, rutaDockers, nombreMaquina);
     if(ejecutarComando(copiarMaquina)){
 
-        if(!establecerNombre(nombreMaquina) || !establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina) || !crearVulnerabilidadLogin(nombreMaquina)){
+        if(!establecerNombre(nombreMaquina) || !establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearVulnerabilidadLogin(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina) ){
             return false;
         }
         crearEstructuraInicio(nombreMaquina);
@@ -198,12 +198,14 @@ bool generarEncabezado(const char *nombreMaquina){
     char listaTitulos[100];
     char rutaInicio[300];
     char encabezado[500];
+    char imagen[500];
     int numeroImagen = (rand() % 9) + 1;
     sprintf(listaTitulos,"%stitulos.txt",rutaListas);
 
     sprintf(encabezado,"<h1>%s</h1>\n", lineaAleatoria(listaTitulos));
-    sprintf(encabezado, "%s \t\t<img src='img/l%d.png' alt='Imagen Aleatoria'>\n", encabezado, numeroImagen);
-
+    sprintf(imagen, " \t\t<img src='img/l%d.png' alt='Imagen Aleatoria'>\n", numeroImagen);
+    strcat(encabezado, imagen);
+    
     sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);
     return (modificarLinea(rutaInicio,"<!--encabezado-->",encabezado));
 }
@@ -215,12 +217,13 @@ bool generarMenu(const char *nombreMaquina){
     int numeroOpciones = (rand() % 4) + 2;
     sprintf(listaMenu,"%smenu.txt",rutaListas);
 
-    sprintf(menu,"<ul>\n");
-    sprintf(menu,"%s\t\t\t<li><a href='#'>Inicio</a></li>\n",menu);
+    sprintf(menu,"<ul>\n\t\t\t<li><a href='#'>Inicio</a></li>\n");
     for (int i = 0; i < numeroOpciones; i++) {
-        sprintf(menu,"%s\t\t\t<li><a href='#'>%s</a></li>\n",menu,lineaAleatoria(listaMenu));
+        char parteMenu[500];
+        sprintf(parteMenu,"\t\t\t<li><a href='#'>%s</a></li>\n",lineaAleatoria(listaMenu));
+        strcat(menu, parteMenu);
     }
-    sprintf(menu,"%s\t\t</ul>\n",menu);
+    strcat(menu,"\t\t</ul>\n");
 
     
     sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);
@@ -228,7 +231,7 @@ bool generarMenu(const char *nombreMaquina){
 }
 
 bool generarContenido(const char *nombreMaquina){
-    char texto[3000];
+    char texto[5000];
     char listaFrases[100];
     char rutaInicio[300];
     int numeroParrafos = (rand() % 5) + 3;
@@ -238,11 +241,13 @@ bool generarContenido(const char *nombreMaquina){
     for (int i = 0; i < numeroParrafos; i++) {
         numeroFrases = (rand() % 7) + 5;
         for (int j = 0; j < numeroFrases; j++) {
-            sprintf(texto,"%s %s",texto,lineaAleatoria(listaFrases));
+            char parteTexto[1000];
+            sprintf(parteTexto," %s",lineaAleatoria(listaFrases));
+            strcat(texto, parteTexto);
         }
-        sprintf(texto,"%s <br><br>",texto);
+        strcat(texto," <br><br>");
     }
-    sprintf(texto,"%s </p>",texto);
+    strcat(texto," </p>");
     sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);
     return (modificarLinea(rutaInicio,"<!--contenido-->",texto));
 }
@@ -256,9 +261,11 @@ bool generarPie(const char *nombreMaquina){
 
     sprintf(pie,"<p>\n");
     for (int i = 0; i < numeroOpciones; i++) {
-        sprintf(pie,"%s\t\t\t<br><a href='#'>%s</a>\n",pie,lineaAleatoria(listaPie));
+        char partePie[500];
+        sprintf(partePie,"\t\t\t<br><a href='#'>%s</a>\n",lineaAleatoria(listaPie));
+        strcat(pie, partePie);
     }
-    sprintf(pie,"%s\t\t</p>\n",pie);
+    strcat(pie,"\t\t</p>\n");
 
     
     sprintf(rutaInicio,"%s%s/src/webContent/inicio.php", rutaDockers,nombreMaquina);

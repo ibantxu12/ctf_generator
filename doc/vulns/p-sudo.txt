@@ -1,4 +1,4 @@
-Ejecutando el comando “sudo -l” Nos aparecerá un archivo con permisos de sudo “ALL ALL=(ALL) NOPASSWD: #archivo#” siendo “#archivo#”
-el archivo con permisos de sudo.
+	Ejecutando el comando “sudo -l” Nos aparecerá un archivo con permisos de sudo “ALL ALL=(ALL) NOPASSWD: #archivo#” siendo “#archivo#”
+	el archivo con permisos de sudo.
 
-El archivo será uno recogido en la lista de “GTFOBins” (https://gtfobins.github.io/) en esa página se detalla como explotar la vulnerabilidad para cada caso.
+	El archivo será uno recogido en la lista de “GTFOBins” (https://gtfobins.github.io/) en esa página se detalla como explotar la vulnerabilidad para cada caso.

@@ -13,6 +13,7 @@ char *archConf = "./dockers/altair/src/flags";
 char *rutaEjemploDocker = "./assets/ejemploDocker/";
 char *rutaBdds = "./assets/bddsConf/";
 char *rutaListas = "./assets/listas/";
+char *rutaVulnsWriteUp = "./doc/vulns/";
 int puerto = 80;
 
 /*

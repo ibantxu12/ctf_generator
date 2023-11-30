@@ -29,3 +29,13 @@ bool crearVulnerabilidadLogin(const char *);
     Crea las vunerabilidades de elevacion de privilegios.
 */
 bool crearVulnerabilidadElevacion(const char *);
+
+/*
+    Añade una nueva linea al archivo de Write-Up.
+*/
+bool nuevaLineaEnWriteUp(const char* , const char *);
+
+/*
+    Añade una nueva vulnerabilidad al archivo de Write-Up.
+*/
+bool nuevaVulnEnWriteUp(const char* , const char *);
