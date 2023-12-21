@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ##elevacion##
+##ejecucion##
 
 ## script para instalacion de mariaDB
 

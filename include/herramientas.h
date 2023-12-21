@@ -23,6 +23,12 @@ bool haySalidaComando(char*);
 bool modificarLinea(const char *, const char *, const char *);
 
 /*
+    Recive un nombre de archivo, una cadena a cambiar y otro archivo para introducir en el primero.
+    Remplaza el contenido del segundo archivo por la cadena del primero.
+*/
+bool modificarLineaFichero(const char *, const char *, const char *);
+
+/*
     Genera una falg con numeros aleatorios.
 */
 char *generarFlag();

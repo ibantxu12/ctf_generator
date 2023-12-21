@@ -29,6 +29,7 @@ echo "<br>¡Bienvenid@, $usuario!<br><br>";
 
     <main id="contenido">
         <!--contenido-->
+        <!--enlace-->
     </main>
 
     <footer id="pie-pagina">

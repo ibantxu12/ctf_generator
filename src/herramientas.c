@@ -101,6 +101,55 @@ bool modificarLinea(const char *archivo, const char *busqueda, const char *reemp
     return true;
 }
 
+bool modificarLineaFichero(const char *archivo, const char *busqueda, const char *archivoReemplazo) {
+    FILE *entrada = fopen(archivo, "r");
+    if (entrada == NULL) {
+        printf("ERROR: No se ha podido abrir el archivo %s en modo lectura\n", archivo);
+        return false;
+    }
+
+    FILE *salida = fopen("temp.txt", "w");
+    if (salida == NULL) {
+        printf("ERROR: No se ha podido abrir el archivo temporal en modo escritura\n");
+        fclose(entrada);
+        return false;
+    }
+
+    char linea[1024];
+    while (fgets(linea, sizeof(linea), entrada) != NULL) {
+        char *posicion = strstr(linea, busqueda);
+        if (posicion != NULL) {
+            // Lee el contenido del archivo de reemplazo
+            FILE *archivoReemplazoPtr = fopen(archivoReemplazo, "r");
+            if (archivoReemplazoPtr == NULL) {
+                printf("ERROR: No se ha podido abrir el archivo de reemplazo %s en modo lectura\n", archivoReemplazo);
+                fclose(entrada);
+                fclose(salida);
+                return false;
+            }
+
+            char caracter;
+            while ((caracter = fgetc(archivoReemplazoPtr)) != EOF) {
+                fputc(caracter, salida);
+            }
+
+            fclose(archivoReemplazoPtr);
+
+            // Avanza la posición después de la cadena de búsqueda en la línea original
+            fputs(posicion + strlen(busqueda), salida);
+        } else {
+            fputs(linea, salida);
+        }
+    }
+
+    fclose(entrada);
+    fclose(salida);
+
+    remove(archivo);
+    rename("temp.txt", archivo);
+    return true;
+}
+
 char *generarFlag(){
     int longitudFlag = 32;
     char *flag = malloc((longitudFlag + 1) * sizeof(char));

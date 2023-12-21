@@ -8,6 +8,7 @@
 extern char *rutaDockers;
 extern char *rutaListas;
 extern char *rutaVulnsWriteUp;
+extern char *rutaOtros;
 
 bool crearSuid(const char *nombreMaquina){
     char cambiarPermisos[500];
@@ -62,6 +63,44 @@ bool sqlInjection(const char *nombreMaquina){
     return true;
 }
 
+
+bool crearSecret(const char *nombreMaquina){
+    char copiarFiles[100];
+    char rutaInicio[100];
+    char rutaInicioSh[100];
+    char rutaInstall[100];
+    char rutaDockerfile[100];
+    char rutaSecret[100];
+    sprintf(copiarFiles,"cp %sfiles.zip %s%s/src",rutaOtros,rutaDockers,nombreMaquina);
+    sprintf(rutaInicio, "%s%s/src/webContent/inicio.php",rutaDockers, nombreMaquina);
+    sprintf(rutaInicioSh, "%s%s/src/scripts/inicio.sh",rutaDockers, nombreMaquina);
+    sprintf(rutaInstall, "%s%s/src/scripts/install.sh",rutaDockers, nombreMaquina);
+    sprintf(rutaDockerfile, "%s%s/Dockerfile",rutaDockers, nombreMaquina);
+    sprintf(rutaSecret, "%s/secret.sh",rutaOtros);
+    
+    if(!ejecutarComando(copiarFiles)){
+        printf("ERROR: no se ha podido generar la base de datos");
+        return false;
+    }
+    if(!modificarLinea(rutaInicio,"<!--enlace-->","<h3>Prueba nuestra página en desarrollo <a href='http://secret.ibc'> pinchando aquí.</a> </h3>")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    if(!modificarLinea(rutaInicioSh,"##ejecucion##","echo 'a'\nsystemctl enable mongod --now\ncd /home/secret\nsu -c 'node index.js &' -s /bin/bash etzio")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    if(!modificarLinea(rutaDockerfile,"##ejecucion##","COPY ./src/files.zip /home/files.zip")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    if(!modificarLineaFichero(rutaInstall,"##ejecucion##",rutaSecret)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    return true;
+}
+
 bool crearVulnerabilidadLogin(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
     nuevaLineaEnWriteUp("1. Vulnerabilidad en el login: \n\n",nombreMaquina);
@@ -93,13 +132,15 @@ bool crearVulnerabilidadElevacion(const char *nombreMaquina){
 bool crearVulnerabilidadEjecucion(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
     nuevaLineaEnWriteUp("\n\n2. Vulnerabilidad de ejecución de comandos: \n\n",nombreMaquina);
-    if (tipoVuln == 0){
+    nuevaVulnEnWriteUp("e-secret",nombreMaquina);
+    return crearSecret(nombreMaquina);
+    /*if (tipoVuln == 0){
         //Vulnerabilidad con SUID
         return crearSuid(nombreMaquina);
     }else {
         //Vulnerabilidad con Sudo
         return crearSudo(nombreMaquina);
-    }
+    }*/
 }
 
 //Crear write-Up

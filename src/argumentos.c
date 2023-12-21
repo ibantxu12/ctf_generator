@@ -8,6 +8,7 @@
 #include "../include/maquina.h"
 
 extern char *archConf;
+extern int puerto;
 
 void mostrarAyuda() {
     printf("Uso: ctf-generator [OPCION]\n");
@@ -127,8 +128,8 @@ bool maquinaCorriendo(){
     char *dockerPS = "docker ps | grep altair";
 
     if(haySalidaComando(dockerPS)){
-        char *puerto = devolverTextoComando("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");
-        printf("Ya hay una maquina corriendo incompleta en el puerto %s.\n", puerto);
+        char *puertoa = devolverTextoComando("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");
+        printf("Ya hay una maquina corriendo incompleta en el puerto %s.\n", puertoa);
         mostrarObjetivos();
         return true;
     }else {

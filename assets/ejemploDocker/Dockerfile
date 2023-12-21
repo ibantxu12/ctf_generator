@@ -3,6 +3,7 @@ ENV HOSTNAME altair
 ENV LANG C.UTF-8
 COPY ./src/webContent/ /var/www/html/
 COPY ./src/scripts /opt/scripts
+##ejecucion##
 RUN chmod 770 /opt/scripts/install.sh
 RUN /opt/scripts/install.sh
 RUN echo '##rootFlag##' > /root/root.txt

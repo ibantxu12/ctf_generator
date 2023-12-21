@@ -21,6 +21,11 @@ bool usypassRelajado(const char *);
 bool sqlInjection(const char *);
 
 /*
+    Cera la vulnerabilidad de Secret.
+*/
+bool crearSecret(const char *);
+
+/*
     crea la vulnerabilidad del login.
 */
 bool crearVulnerabilidadLogin(const char *);
@@ -30,6 +35,10 @@ bool crearVulnerabilidadLogin(const char *);
 */
 bool crearVulnerabilidadElevacion(const char *);
 
+/*
+    Crea las vunerabilidades de ejecucion de comandos.
+*/
+bool crearVulnerabilidadEjecucion(const char *nombreMaquina);
 /*
     Añade una nueva linea al archivo de Write-Up.
 */
