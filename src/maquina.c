@@ -17,6 +17,7 @@ extern int puerto;
 bool crearNuevaMaquina(const char *nombreMaquina){
     char copiarMaquina[100]; 
     sprintf(copiarMaquina, "cp -r %s %s%s", rutaEjemploDocker, rutaDockers, nombreMaquina);
+    printf("%s",copiarMaquina);
     if(ejecutarComando(copiarMaquina)){
         if(!establecerNombre(nombreMaquina) || !establecerPuerto(nombreMaquina) || !anadirFlags(nombreMaquina) || !cambiarEstilo(nombreMaquina) || !elegirBdd(nombreMaquina) || !crearEstructuraInicio(nombreMaquina) || !crearVulnerabilidadLogin(nombreMaquina) || !crearVulnerabilidadEjecucion(nombreMaquina) || !crearVulnerabilidadElevacion(nombreMaquina) ){
             printf("Conflicto con el diseño de la maquina...\n");
