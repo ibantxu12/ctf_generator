@@ -31,7 +31,7 @@ bool crearNuevaMaquina(const char *nombreMaquina){
 void iniciarNuevaMaquina(){
     char ejecutarMaquina[100];
     printf("Creadndo la nueva maquina...\n");
-    sprintf(ejecutarMaquina, "cd %saltair/ && ./start.sh 1>/dev/null 2>/dev/null", rutaDockers);
+    sprintf(ejecutarMaquina, "cd %saltair/ && chmod +x ./start.sh && ./start.sh 1>/dev/null 2>/dev/null", rutaDockers);
     if (ejecutarComando(ejecutarMaquina)){
         char *puerto = devolverTextoComando("docker port altair | grep -m 1 -oP '(?<=:)[0-9]+'");                
         if(puerto != NULL){
