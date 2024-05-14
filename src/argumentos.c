@@ -16,7 +16,7 @@ void mostrarAyuda() {
     printf("  -p, --port PUERTO      Especifica el puerto, por defecto 80\n");
     printf("  -h, --help             Muestra esta ayuda\n");
     printf("  -f, --flag FLAG        Introducir flag, si no se especifica FLAG las muestra\n");
-    printf("  -c, --cancel           Canela la maquina 'lo que implica rendirse'\n");
+    printf("  -c, --cancel           Cancela la maquina 'lo que implica rendirse'\n");
     printf("  -s, --stop             Para la maquina, pero no la elimina\n");
     printf("  -r, --run              Ejecuta la maquina en el caso de estar parada\n");
     printf("  -m, --multi CANTIDAD   Crea el numero de maquinas especificado y las guarda en la carpeta dockers\n");
