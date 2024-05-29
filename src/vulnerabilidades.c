@@ -140,6 +140,34 @@ bool webpdfs(const char *nombreMaquina){
     return true;
 }
 
+bool rce(const char *nombreMaquina){
+    char rutaInicio[100];
+    char copiarFiles[100];
+    char rutaWebpdfsHTML[100];
+    char rutaDockerfile[100];
+
+    sprintf(copiarFiles,"cp %srce.php %s%s/src",rutaOtros,rutaDockers,nombreMaquina);
+    sprintf(rutaInicio, "%s%s/src/webContent/inicio.php",rutaDockers, nombreMaquina);
+    sprintf(rutaWebpdfsHTML, "%s/rce.html",rutaOtros);
+    sprintf(rutaDockerfile, "%s%s/Dockerfile",rutaDockers, nombreMaquina);
+    
+    if(!ejecutarComando(copiarFiles)){
+        printf("ERROR: no se ha podido generar la base de datos");
+        return false;
+    }
+
+    if(!modificarLinea(rutaDockerfile,"##ejecucion##","COPY ./src/rce.php /var/www/html")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+
+    if(!modificarLineaFichero(rutaInicio,"<!--enlace-->",rutaWebpdfsHTML)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    return true;
+}
+
 bool crearVulnerabilidadLogin(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
     nuevaLineaEnWriteUp("1. Vulnerabilidad en el login: \n\n",nombreMaquina);
@@ -169,15 +197,19 @@ bool crearVulnerabilidadElevacion(const char *nombreMaquina){
 }
 
 bool crearVulnerabilidadEjecucion(const char *nombreMaquina){
-    int tipoVuln = rand() % 2;
+    int tipoVuln = rand() % 3;
     nuevaLineaEnWriteUp("\n\n2. Vulnerabilidad de ejecución de comandos: \n\n",nombreMaquina);
-
+    
     if (tipoVuln == 0){
         //Vulnerabilidad de secret
         nuevaVulnEnWriteUp("e-secret",nombreMaquina);
         return crearSecret(nombreMaquina);
+    }if (tipoVuln == 1){
+        //Vulnerabilidad de secret
+        nuevaVulnEnWriteUp("e-rce",nombreMaquina);
+        return rce(nombreMaquina);
     }else {
-        //Vulnerabilidad con Sudo
+        //Vulnerabilidad con webpdfs
         nuevaVulnEnWriteUp("e-webpdfs",nombreMaquina);
         return webpdfs(nombreMaquina);
     }

