@@ -101,6 +101,45 @@ bool crearSecret(const char *nombreMaquina){
     return true;
 }
 
+bool webpdfs(const char *nombreMaquina){
+    char copiarFiles[100];
+    char rutaInicio[100];
+    char rutaInicioSh[100];
+    char rutaInstall[100];
+    char rutaDockerfile[100];
+    char rutaWebpdfsSh[100];
+    char rutaWebpdfsHTML[100];
+    sprintf(copiarFiles,"cp %spdfapp.zip %s%s/src",rutaOtros,rutaDockers,nombreMaquina);
+    sprintf(rutaInicio, "%s%s/src/webContent/inicio.php",rutaDockers, nombreMaquina);
+    sprintf(rutaInicioSh, "%s%s/src/scripts/inicio.sh",rutaDockers, nombreMaquina);
+    sprintf(rutaInstall, "%s%s/src/scripts/install.sh",rutaDockers, nombreMaquina);
+    sprintf(rutaDockerfile, "%s%s/Dockerfile",rutaDockers, nombreMaquina);
+    sprintf(rutaWebpdfsSh, "%s/webpdfs.sh",rutaOtros);
+    sprintf(rutaWebpdfsHTML, "%s/webpdfs.html",rutaOtros);
+    
+    if(!ejecutarComando(copiarFiles)){
+        printf("ERROR: no se ha podido generar la base de datos");
+        return false;
+    }
+    if(!modificarLinea(rutaInicioSh,"##ejecucion##","cd /opt/scripts/pdfapp\nsu -c 'bundle exec rackup config.ru &' -s /bin/bash etzio")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    if(!modificarLinea(rutaDockerfile,"##ejecucion##","COPY ./src/pdfapp.zip /opt/scripts")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    if(!modificarLineaFichero(rutaInstall,"##ejecucion##",rutaWebpdfsSh)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    if(!modificarLineaFichero(rutaInicio,"<!--enlace-->",rutaWebpdfsHTML)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    return true;
+}
+
 bool crearVulnerabilidadLogin(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
     nuevaLineaEnWriteUp("1. Vulnerabilidad en el login: \n\n",nombreMaquina);
@@ -132,15 +171,16 @@ bool crearVulnerabilidadElevacion(const char *nombreMaquina){
 bool crearVulnerabilidadEjecucion(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
     nuevaLineaEnWriteUp("\n\n2. Vulnerabilidad de ejecución de comandos: \n\n",nombreMaquina);
-    nuevaVulnEnWriteUp("e-secret",nombreMaquina);
-    return crearSecret(nombreMaquina);
-    /*if (tipoVuln == 0){
-        //Vulnerabilidad con SUID
-        return crearSuid(nombreMaquina);
+
+    if (tipoVuln == 0){
+        //Vulnerabilidad de secret
+        nuevaVulnEnWriteUp("e-secret",nombreMaquina);
+        return crearSecret(nombreMaquina);
     }else {
         //Vulnerabilidad con Sudo
-        return crearSudo(nombreMaquina);
-    }*/
+        nuevaVulnEnWriteUp("e-webpdfs",nombreMaquina);
+        return webpdfs(nombreMaquina);
+    }
 }
 
 //Crear write-Up

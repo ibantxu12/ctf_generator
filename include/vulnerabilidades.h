@@ -26,6 +26,11 @@ bool sqlInjection(const char *);
 bool crearSecret(const char *);
 
 /*
+    Cera la vulnerabilidad de webpdfs.
+*/
+bool webpdfs(const char *);
+
+/*
     crea la vulnerabilidad del login.
 */
 bool crearVulnerabilidadLogin(const char *);

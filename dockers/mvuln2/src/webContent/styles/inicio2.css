@@ -1,0 +1,66 @@
+/* Encabezado */
+#encabezado {
+    text-align: center;
+    padding: 10px;
+}
+
+#encabezado h1 {
+    margin: 0;
+}
+
+#encabezado img {
+    max-width: 20%;
+    height: auto;
+    margin-top: 10px;
+}
+
+/* Menú de navegación */
+#menu {
+    background-color: #3498db;
+    padding: 10px;
+    border-bottom: 2px solid #2980b9; /* Agrega un borde inferior */
+}
+
+#menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#menu li {
+    display: inline;
+    margin-right: 10px;
+}
+
+#menu a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 5px; /* Agrega bordes redondeados */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Agrega transición a cambios en el color de fondo y sombra */
+}
+
+#menu a:hover {
+    background-color: #2980b9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Agrega una sombra al pasar el mouse */
+}
+
+/* Pie de página */
+#pie-pagina {
+    background-color: #2ecc71;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    border-top: 2px solid #27ae60; /* Agrega un borde superior */
+}
+
+#pie-pagina a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+#pie-pagina a:hover {
+    text-decoration: underline;
+}

