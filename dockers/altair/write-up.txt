@@ -27,7 +27,7 @@
 
 3. Vulnerabilidad para la elevación: 
 
-	Ejecutando el comando “sudo -l” Nos aparecerá un archivo con permisos de sudo “ALL ALL=(ALL) NOPASSWD: #archivo#” siendo “#archivo#”
-	el archivo con permisos de sudo.
+	Ejecutando el comando “find / -perm /6000 2>/dev/null” nos aparecerá una lista de los archivos que tienen la caracterisitica SUID.
+	Uno de estos será vulnerable, habrá que buscar cual está en la lista de “GTFOBins” (https://gtfobins.github.io/).
 
-	El archivo será uno recogido en la lista de “GTFOBins” (https://gtfobins.github.io/) en esa página se detalla como explotar la vulnerabilidad para cada caso.
+	Para explotarlo habrá que seguir los datos de la página de “GTFOBins” para cada caso.

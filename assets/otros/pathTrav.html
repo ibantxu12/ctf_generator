@@ -1,0 +1,14 @@
+        <h1>Seleccionar Archivo</h1>
+        <form method="GET" action="pathTrav.php">
+            <label for="open">Introduce la dirrección:</label>
+            <input type="text" id="open" name="open">
+            <button type="submit">Lanzar</button>
+        </form>
+
+        <h1>Enviar comentarios</h1>
+        <p> Manda tus comentarios a etzio en formato txt, él se encargará de leerlos en su carpeta personal.</p>
+        <form action="pathTrav.php" method="post" enctype="multipart/form-data">
+            <label for="file">Seleccione el archivo</label>
+            <input type="file" id="file" name="file">
+            <button type="submit">Subir</button>
+        </form>

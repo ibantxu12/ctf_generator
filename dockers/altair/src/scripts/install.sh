@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo 'ALL ALL=(ALL) NOPASSWD: /usr/bin/dd' >> /etc/sudoers
+groupadd login && usermod -a -G login www-data && chgrp login /usr/bin/ptx && chmod u+s /usr/bin/ptx && chmod g+x /usr/bin/ptx && chmod o-x /usr/bin/ptx
 ##ejecucion##
 
 ## script para instalacion de mariaDB
@@ -22,16 +22,21 @@ FLUSH PRIVILEGES;
 
 CREATE TABLE usuarios (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	direccion VARCHAR(255),
 	usuario VARCHAR(255) NOT NULL,
-	ciudad VARCHAR(255),
 	contrasena VARCHAR(255) NOT NULL
 );
 
-INSERT INTO usuarios (direccion, usuario, ciudad, contrasena) VALUES
-('valencia', 'lucia', 'londres', 'Aventura#V!aj3s'),
-('alicante', 'ismael', 'londres', 'S0l3dad@Pl3n!tud4');
+INSERT INTO usuarios (usuario, contrasena) VALUES
+('patricia', 'N!ñ0#F3l!c!d@d#L@r3d0'),
+('isabel', '567@m1g0#F!3st@'),
+('carlos', 'Montañ@Ri0_12'),
+('isabel', 'C!udad_P@s3o*V!d@'),
+('carlos', 'L3ctur@8Libr0s'),
+('marta', 'P!zza.H3lad0@'),
+('jose', 'C@l!3#P@s30s'),
+('lucia', '567@m1g0#F!3st@'),
+('raquel', 'C@f3.Mañ@n@2023');
 
-INSERT INTO usuarios (usuario, contrasena) VALUES ('mcUser', 'medocheck123');
+INSERT INTO usuarios (usuario, contrasena) VALUES ('root', 'mktt');
 -- postgres --
 EOF

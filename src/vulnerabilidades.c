@@ -168,6 +168,76 @@ bool rce(const char *nombreMaquina){
     return true;
 }
 
+bool rfi(const char *nombreMaquina){
+    char rutaInicio[100];
+    char copiarFiles[100];
+    char copiarFiles2[100];
+    char rutaWebpdfsHTML[100];
+    char rutaDockerfile[100];
+
+    sprintf(copiarFiles,"cp %srfi.php %s%s/src",rutaOtros,rutaDockers,nombreMaquina);
+    sprintf(copiarFiles2,"cp %sphp.ini %s%s/src",rutaOtros,rutaDockers,nombreMaquina);
+    sprintf(rutaInicio, "%s%s/src/webContent/inicio.php",rutaDockers, nombreMaquina);
+    sprintf(rutaWebpdfsHTML, "%s/rfi.html",rutaOtros);
+    sprintf(rutaDockerfile, "%s%s/Dockerfile",rutaDockers, nombreMaquina);
+    
+    if(!ejecutarComando(copiarFiles)){
+        printf("ERROR: no se ha podido generar la base de datos");
+        return false;
+    }
+
+    if(!ejecutarComando(copiarFiles2)){
+        printf("ERROR: no se ha podido generar la base de datos");
+        return false;
+    }
+
+    if(!modificarLinea(rutaDockerfile,"##ejecucion##","COPY ./src/rfi.php /var/www/html")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+
+    if(!modificarLinea(rutaDockerfile,"##ejecucion2##","COPY ./src/php.ini /etc/php/8.2/apache2/php.ini")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+
+    if(!modificarLineaFichero(rutaInicio,"<!--enlace-->",rutaWebpdfsHTML)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    return true;
+}
+
+bool pathTrav(const char *nombreMaquina){
+    char rutaInicio[100];
+    char copiarFiles[100];
+    // char copiarFiles2[100];
+    char rutaWebpdfsHTML[100];
+    char rutaDockerfile[100];
+
+    sprintf(copiarFiles,"cp %spathTrav.php %s%s/src",rutaOtros,rutaDockers,nombreMaquina);
+    // sprintf(copiarFiles2,"cp %sphp.ini %s%s/src",rutaOtros,rutaDockers,nombreMaquina);
+    sprintf(rutaInicio, "%s%s/src/webContent/inicio.php",rutaDockers, nombreMaquina);
+    sprintf(rutaWebpdfsHTML, "%spathTrav.html",rutaOtros);
+    sprintf(rutaDockerfile, "%s%s/Dockerfile",rutaDockers, nombreMaquina);
+    
+    if(!ejecutarComando(copiarFiles)){
+        printf("ERROR: no se ha podido generar la base de datos");
+        return false;
+    }
+
+    if(!modificarLinea(rutaDockerfile,"##ejecucion##","COPY ./src/pathTrav.php /var/www/html\nRUN mkdir /home/etzio\nRUN chown www-data:www-data /home/etzio/")){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+
+    if(!modificarLineaFichero(rutaInicio,"<!--enlace-->",rutaWebpdfsHTML)){
+        printf("ERROR: no se ha podido generar la vulnerabilidad de ejecucion.");
+        return false;
+    }
+    return true;
+}
+
 bool crearVulnerabilidadLogin(const char *nombreMaquina){
     int tipoVuln = rand() % 2;
     nuevaLineaEnWriteUp("1. Vulnerabilidad en el login: \n\n",nombreMaquina);
@@ -197,17 +267,25 @@ bool crearVulnerabilidadElevacion(const char *nombreMaquina){
 }
 
 bool crearVulnerabilidadEjecucion(const char *nombreMaquina){
-    int tipoVuln = rand() % 3;
+    int tipoVuln = rand() % 5;
     nuevaLineaEnWriteUp("\n\n2. Vulnerabilidad de ejecución de comandos: \n\n",nombreMaquina);
-    
+
     if (tipoVuln == 0){
         //Vulnerabilidad de secret
         nuevaVulnEnWriteUp("e-secret",nombreMaquina);
         return crearSecret(nombreMaquina);
     }if (tipoVuln == 1){
-        //Vulnerabilidad de secret
+        //Vulnerabilidad de rce
         nuevaVulnEnWriteUp("e-rce",nombreMaquina);
         return rce(nombreMaquina);
+    }if (tipoVuln == 2){
+        //Vulnerabilidad de rfi
+        nuevaVulnEnWriteUp("e-rfi",nombreMaquina);
+        return rfi(nombreMaquina);
+    }if (tipoVuln == 3){
+        //Vulnerabilidad de path Traversal
+        nuevaVulnEnWriteUp("e-pathTrav",nombreMaquina);
+        return pathTrav(nombreMaquina);
     }else {
         //Vulnerabilidad con webpdfs
         nuevaVulnEnWriteUp("e-webpdfs",nombreMaquina);
